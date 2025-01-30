@@ -25,7 +25,7 @@ CREATE TABLE Produits (
     id INT AUTO_INCREMENT PRIMARY KEY,
     reference VARCHAR(50) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
-    description TEXT,
+    description_produit TEXT,
     prix_unitaire DECIMAL(10, 2) NOT NULL,
     quantite_stock INT NOT NULL CHECK (quantite_stock >= 0),
     id_categorie INT,

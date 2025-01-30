@@ -20,7 +20,7 @@ INSERT INTO Fournisseurs (nom, numero_adresse, rue_adresse, code_postal, ville, 
 ("Fournisseur E", 90, "avenue de l'Industrie", "69003", "Lyon", "0607080910", "contact@fournisseurE.com");
 
 -- Insertion dans la table Produits
-INSERT INTO Produits (reference, nom, description, prix_unitaire, quantite_stock, id_categorie, id_fournisseur) VALUES
+INSERT INTO Produits (reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur) VALUES
 ("A001", "Maquette Avion Militaire F-16", "Maquette avion en papier, echelle 1:72, modele F-16 Fighting Falcon", 15.00, 50, 1, 1),
 ("A002", "Maquette Avion Civil Airbus A320", "Maquette avion en papier, echelle 1:100, modele Airbus A320", 18.50, 30, 2, 2),
 ("A003", "Maquette Avion Militaire Spitfire", "Maquette avion en papier, echelle 1:72, modele Spitfire", 17.00, 20, 1, 1),
