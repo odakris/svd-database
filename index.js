@@ -55,7 +55,7 @@ app.delete("/categories/:id", async (req, res) => {
 // GET
 app.get("/produits", async (req, res) => {
   const connection = await dbConnection();
-  const [produits] = await connection.query("SELECT * FROM produits");
+  const [produits] = await connection.query("SELECT * FROM Produits");
   res.json(produits);
 });
 
@@ -92,7 +92,7 @@ app.delete("/produits/:id", async (req, res) => {
 // GET
 app.get("/fournisseurs", async (req, res) => {
   const connection = await dbConnection();
-  const [fournisseurs] = await connection.query("SELECT * FROM fournisseurs");
+  const [fournisseurs] = await connection.query("SELECT * FROM Fournisseurs");
   res.json(fournisseurs);
 });
 
@@ -101,7 +101,7 @@ app.post("/fournisseurs", async (req, res) => {
   const connection = await dbConnection();
   const { nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
   await connection.query(
-    `INSERT INTO fournisseurs (nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email) VALUES ('${nom}','${numero_adresse}','${rue_adresse}','${code_postal}','${ville}','${telephone}','${email}')`
+    `INSERT INTO Fournisseurs (nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email) VALUES ('${nom}','${numero_adresse}','${rue_adresse}','${code_postal}','${ville}','${telephone}','${email}')`
   );
   res.send("Fournisseur ajouté");
 });
@@ -112,7 +112,7 @@ app.put("/fournisseurs/:id", async (req, res) => {
   const { id } = req.params;
   const { nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
   await connection.query(
-    `UPDATE fournisseurs SET nom = '${nom}', numero_adresse = '${numero_adresse}', rue_adresse = '${rue_adresse}', code_postal = '${code_postal}', ville = '${ville}', telephone = '${telephone}', email = '${email}' WHERE id = '${id}'`
+    `UPDATE Fournisseurs SET nom = '${nom}', numero_adresse = '${numero_adresse}', rue_adresse = '${rue_adresse}', code_postal = '${code_postal}', ville = '${ville}', telephone = '${telephone}', email = '${email}' WHERE id = '${id}'`
   );
   res.send("Fournisseurs mis à jour");
 });
@@ -122,7 +122,44 @@ app.delete("/fournisseurs/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
   await connection.query(`DELETE FROM Fournisseurs WHERE id = '${id}'`);
-  res.send("fournisseur supprimé");
+  res.send("Fournisseur supprimé");
+});
+
+// CLIENTS CRUD //////////////////////////////////////////////////////////////////////////////
+// GET
+app.get("/clients", async (req, res) => {
+  const connection = await dbConnection();
+  const [clients] = await connection.query("SELECT * FROM Clients");
+  res.json(clients);
+});
+
+// POST
+app.post("/clients", async (req, res) => {
+  const connection = await dbConnection();
+  const { nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
+  await connection.query(
+    `INSERT INTO Clients (nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email) VALUES ('${nom}', '${prenom}', '${numero_adresse}', '${rue_adresse}', '${code_postal}', '${ville}', '${telephone}', '${email}')`
+  );
+  res.send("Client ajouté");
+});
+
+// PUT
+app.put("/clients/:id", async (req, res) => {
+  const connection = await dbConnection();
+  const { id } = req.params;
+  const { nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
+  await connection.query(
+    `UPDATE Clients SET nom = '${nom}', prenom = '${prenom}', numero_adresse = '${numero_adresse}', rue_adresse = '${rue_adresse}', code_postal = '${code_postal}', ville = '${ville}', telephone = '${telephone}', email = '${email}' WHERE id = '${id}'`
+  );
+  res.send("Client mis à jour");
+});
+
+// DELETE
+app.delete("/clients/:id", async (req, res) => {
+  const connection = await dbConnection();
+  const { id } = req.params;
+  await connection.query(`DELETE FROM Clients WHERE id = '${id}'`);
+  res.send("Client supprimé");
 });
 
 // Démarrage du serveur
