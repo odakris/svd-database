@@ -3,13 +3,13 @@ CREATE DATABASE avion_papier;
 USE avion_papier;
 
 -- Table des categories
-CREATE TABLE Categories(
+CREATE TABLE categories(
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL
 );
 
 -- Table des fournisseurs
-CREATE TABLE Fournisseurs(
+CREATE TABLE fournisseurs(
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     numero_adresse INT,
@@ -21,13 +21,13 @@ CREATE TABLE Fournisseurs(
 );
 
 -- Table des produits
-CREATE TABLE Produits (
+CREATE TABLE produits (
     id INT AUTO_INCREMENT PRIMARY KEY,
     reference VARCHAR(50) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
     description_produit TEXT,
     prix_unitaire DECIMAL(10, 2) NOT NULL,
-    quantite_stock INT NOT NULL CHECK (quantite_stock >= 0),
+    quantite_stock INT NOT NULL /*CHECK (quantite_stock >= 0)*/,
     id_categorie INT,
     id_fournisseur INT,
     FOREIGN KEY (id_categorie) REFERENCES Categories(id),
@@ -35,7 +35,7 @@ CREATE TABLE Produits (
 );
 
 -- Table des clients
-CREATE TABLE Clients(
+CREATE TABLE clients(
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL,
     prenom VARCHAR(100) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE Clients(
 );
 
 -- Table des commandes
-CREATE TABLE Commandes(
+CREATE TABLE commandes(
     id INT AUTO_INCREMENT PRIMARY KEY,
     date_commande DATE NOT NULL,
     prix_total DECIMAL(10, 2) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE Commandes(
 );
 
 -- Table des lignes de commande
-CREATE TABLE Lignes_Commandes(
+CREATE TABLE lignes_commandes(
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_produit INT,
     id_commande INT,
