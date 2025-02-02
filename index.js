@@ -242,7 +242,7 @@ app.post("/commandes", async (req, res) => {
 
   for (const ligne of lignes_commandes) {
     await connection.query(
-      `INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire, total_ligne) VALUES (${id_commande}, ${ligne.id_produit}, ${ligne.quantite}, ${ligne.prix_unitaire}, ${ligne.quantite} * ${ligne.prix_unitaire})`
+      `INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire, total_ligne) VALUES (${id_commande}, ${ligne.id_produit}, ${ligne.quantite}, ${ligne.prix_unitaire}, ${ligne.total_ligne})`
     );
   }
   res.send("Commande ajoutée");
@@ -261,7 +261,7 @@ app.put("/commandes/:id", async (req, res) => {
 
   for (const ligne of lignes_commandes) {
     await connection.query(
-      `INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire, total_ligne) VALUES (${id}, ${ligne.id_produit}, ${ligne.quantite}, ${ligne.prix_unitaire}, ${ligne.quantite} * ${ligne.prix_unitaire})`
+      `INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire, total_ligne) VALUES (${id}, ${ligne.id_produit}, ${ligne.quantite}, ${ligne.prix_unitaire}, ${ligne.total_ligne})`
     );
   }
 
