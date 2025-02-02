@@ -150,11 +150,19 @@ app.delete("/fournisseurs/:id", async (req, res) => {
 });
 
 // CLIENTS CRUD //////////////////////////////////////////////////////////////////////////////
-// GET
+// GET ALL
 app.get("/clients", async (req, res) => {
   const connection = await dbConnection();
   const [clients] = await connection.query("SELECT * FROM clients");
   res.json(clients);
+});
+
+// GET ONE
+app.get("/clients/:id", async (req, res) => {
+  const connection = await dbConnection();
+  const { id } = req.params;
+  const [clients] = await connection.query(`SELECT * FROM clients WHERE id = ${id}`);
+  res.json(clients[0]);
 });
 
 // POST
