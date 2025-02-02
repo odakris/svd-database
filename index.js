@@ -1,6 +1,6 @@
 const express = require("express");
 const mysql = require("mysql2/promise");
-// const fs = require("fs");
+const { initDB } = require("./dbInit");
 
 const app = express();
 app.use(express.json());
@@ -17,6 +17,12 @@ const dbConnection = async () => {
   const connection = await mysql.createConnection(dbConfig);
   return connection;
 };
+
+// Initialisation de la base de données
+app.post("/init", async (req, res) => {
+  await initDB();
+  res.send("Base de données initialisée avec succès !");
+});
 
 // CATEGORIES CRUD //////////////////////////////////////////////////////////////////////////////
 // GET ALL
