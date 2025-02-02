@@ -198,8 +198,18 @@ app.delete("/clients/:id", async (req, res) => {
 // GET ALL
 app.get("/commandes", async (req, res) => {
   const connection = await dbConnection();
+
   const [commandes] = await connection.query("SELECT * FROM commandes");
-  res.json(commandes);
+  const result = [];
+
+  for (const commande of commandes) {
+    const [lignes_commandes] = await connection.query(
+      `SELECT * FROM lignes_commandes WHERE id_commande = ${commande.id}`
+    );
+    result.push({ commande, lignes_commandes });
+  }
+
+  res.json(result);
 });
 
 // GET ONE
@@ -209,17 +219,26 @@ app.get("/commandes/:id", async (req, res) => {
 
   const [commandes] = await connection.query(`SELECT * FROM commandes WHERE id = ${id}`);
   const [lignes_commandes] = await connection.query(`SELECT * FROM lignes_commandes WHERE id_commande = ${id}`);
+
   res.json({ commande: commandes[0], lignes_commandes });
 });
 
 // POST
 app.post("/commandes", async (req, res) => {
   const connection = await dbConnection();
-  const { date_commande, prix_total, id_client } = req.body;
+  const { date_commande, prix_total, id_client, lignes_commandes } = req.body;
 
-  await connection.query(
+  const [commande] = await connection.query(
     `INSERT INTO commandes (date_commande, prix_total, id_client) VALUES ('${date_commande}', ${prix_total}, ${id_client})`
   );
+
+  const id_commande = commande.insertId;
+
+  for (const ligne of lignes_commandes) {
+    await connection.query(
+      `INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire, total_ligne) VALUES (${id_commande}, ${ligne.id_produit}, ${ligne.quantite}, ${ligne.prix_unitaire}, ${ligne.quantite} * ${ligne.prix_unitaire})`
+    );
+  }
   res.send("Commande ajoutée");
 });
 
@@ -227,20 +246,29 @@ app.post("/commandes", async (req, res) => {
 app.put("/commandes/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
+  const { date_commande, prix_total, id_client, lignes_commandes } = req.body;
 
-  const { date_commande, prix_total, id_client } = req.body;
   await connection.query(
     `UPDATE commandes SET date_commande = '${date_commande}', prix_total = ${prix_total}, id_client = ${id_client} WHERE id = ${id}`
   );
-  res.send("Commande mise à jour");
+  await connection.query(`DELETE FROM lignes_commandes WHERE id_commande = ${id}`);
+
+  for (const ligne of lignes_commandes) {
+    await connection.query(
+      `INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire, total_ligne) VALUES (${id}, ${ligne.id_produit}, ${ligne.quantite}, ${ligne.prix_unitaire}, ${ligne.quantite} * ${ligne.prix_unitaire})`
+    );
+  }
+
+  res.send("Commande mise à jour avec ses lignes !");
 });
 
 // DELETE
 app.delete("/commandes/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
+  await connection.query(`DELETE FROM lignes_commandes WHERE id_commande = ${id}`);
   await connection.query(`DELETE FROM commandes WHERE id = ${id}`);
-  res.send("Commande supprimée");
+  res.send("Commande et ses lignes supprimées !");
 });
 
 // Démarrage du serveur
