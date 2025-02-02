@@ -592,7 +592,7 @@ if (quantite > produit.quantite_stock) {
 
 </div>
 
-## 3. Conclusion et proposition pour la version 2
+## 3. Conclusion de l'audit
 
 <div style="text-align: justify;">
 
