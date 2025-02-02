@@ -105,11 +105,19 @@ app.delete("/produits/:id", async (req, res) => {
 });
 
 // FOURNISSEURS CRUD //////////////////////////////////////////////////////////////////////////////
-// GET
+// GET ALL
 app.get("/fournisseurs", async (req, res) => {
   const connection = await dbConnection();
   const [fournisseurs] = await connection.query("SELECT * FROM fournisseurs");
   res.json(fournisseurs);
+});
+
+// GET ONE
+app.get("/fournisseurs/:id", async (req, res) => {
+  const connection = await dbConnection();
+  const { id } = req.params;
+  const [fournisseurs] = await connection.query(`SELECT * FROM fournisseurs WHERE id = ${id}`);
+  res.json(fournisseurs[0]);
 });
 
 // POST
