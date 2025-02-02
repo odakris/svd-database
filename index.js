@@ -60,11 +60,19 @@ app.delete("/categories/:id", async (req, res) => {
 });
 
 // PRODUITS CRUD //////////////////////////////////////////////////////////////////////////////
-// GET
+// GET ALL
 app.get("/produits", async (req, res) => {
   const connection = await dbConnection();
   const [produits] = await connection.query("SELECT * FROM produits");
   res.json(produits);
+});
+
+// GET ONE
+app.get("/produits/:id", async (req, res) => {
+  const connection = await dbConnection();
+  const { id } = req.params;
+  const [produits] = await connection.query(`SELECT * FROM produits WHERE id = ${id}`);
+  res.json(produits[0]);
 });
 
 // POST
