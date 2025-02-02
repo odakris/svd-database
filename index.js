@@ -19,11 +19,19 @@ const dbConnection = async () => {
 };
 
 // CATEGORIES CRUD //////////////////////////////////////////////////////////////////////////////
-// GET
+// GET ALL
 app.get("/categories", async (req, res) => {
   const connection = await dbConnection();
   const [categories] = await connection.query("SELECT * FROM categories");
   res.json(categories);
+});
+
+// GET ONE
+app.get("/categories/:id", async (req, res) => {
+  const connection = await dbConnection();
+  const { id } = req.params;
+  const [categories] = await connection.query(`SELECT * FROM categories WHERE id = ${id}`);
+  res.json(categories[0]);
 });
 
 // POST
