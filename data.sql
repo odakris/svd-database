@@ -44,33 +44,26 @@ INSERT INTO Clients (nom, prenom, numero_adresse, rue_adresse, code_postal, vill
 ("Giraud", "Elise", 32, "place des Avions", "33010", "Bordeaux", "0612340987", "elise.giraud@email.com");
 
 -- Insertion dans la table Commandes
-INSERT INTO Commandes (date_commande, prix_total, id_client) VALUES
-("2025-01-10", 82.00, 1),  -- Prix total recalculé
-("2025-01-12", 45.00, 2),
-("2025-01-15", 100.00, 3),
-("2025-01-16", 250.00, 4),
-("2025-01-20", 200.00, 5),
-("2025-01-22", 300.00, 6);
+INSERT INTO Commandes (date_commande, id_client) VALUES
+("2025-01-10", 1), 
+("2025-01-12", 2),
+("2025-01-15", 3),
+("2025-01-16", 4),
+("2025-01-20", 5),
+("2025-01-22", 6);
 
 -- Insertion dans la table Lignes_Commandes
-INSERT INTO Lignes_Commandes (id_produit, id_commande, quantite, prix_unitaire, total_ligne) VALUES
-(1, 1, 3, 15.00, 45.00),    -- Commande 1
-(2, 1, 2, 18.50, 37.00),    -- Commande 1
-(3, 2, 1, 17.00, 17.00),    -- Commande 2
-(4, 2, 1, 25.00, 25.00),    -- Commande 2
-(5, 3, 3, 20.00, 60.00),    -- Commande 3
-(6, 3, 2, 19.00, 38.00),    -- Commande 3
-(7, 4, 2, 22.00, 44.00),    -- Commande 4
-(8, 4, 1, 25.00, 25.00),    -- Commande 4
-(9, 5, 5, 20.00, 100.00),   -- Commande 5
-(10, 5, 2, 23.50, 47.00),   -- Commande 5
-(11, 6, 4, 18.00, 72.00),   -- Commande 6
-(12, 6, 3, 21.00, 63.00);   -- Commande 6
+INSERT INTO Lignes_Commandes (id_produit, id_commande, quantite, prix_unitaire) VALUES
+(1, 1, 3, 15.00),
+(2, 1, 2, 18.50), 
+(3, 2, 1, 17.00),
+(4, 2, 1, 25.00),
+(5, 3, 3, 20.00),
+(6, 3, 2, 19.00),
+(7, 4, 2, 22.00),
+(8, 4, 1, 25.00),
+(9, 5, 5, 20.00),
+(10, 5, 2, 23.50),
+(11, 6, 4, 18.00),
+(12, 6, 3, 21.00);
 
--- -- Mise à jour du prix_total pour chaque commande en fonction des lignes de commande
--- UPDATE Commandes
--- SET prix_total = (
---     SELECT SUM(total_ligne)
---     FROM Lignes_Commandes
---     WHERE id_commande = Commandes.id
--- );
