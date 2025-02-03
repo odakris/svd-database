@@ -37,7 +37,7 @@ npm install
 npm start
 ```
 
-L'API sera accessible à l'adresse suivante : http://localhost:3000.\
+L'API sera accessible à l'adresse suivante : http://localhost:3000.
 \
 Vous pouvez maintenant utiliser des outils comme [Postman](https://www.postman.com/) pour interagir avec l'API.
 
