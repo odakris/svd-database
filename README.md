@@ -55,7 +55,9 @@ git checkout master
 
 </div>
 
-## Les Routes de l'API
+# Documentation et Audit de l'API (Version 1)
+
+## 1. Présentation de l'API V1
 
 ### Initialisation de la Base de Données
 
@@ -125,7 +127,7 @@ git checkout master
 
 </div>
 
-## Structure de la Base de Données
+## 2. Structure de la Base de Données
 
 <div style="text-align: justify;">
 
@@ -133,7 +135,7 @@ La base de données `avion_papier` est structurée autour de plusieurs tables in
 
 </div>
 
-### 1. Table `catégories`
+### 2.1 Table `catégories`
 
 <div style="text-align: justify;">
 
@@ -150,7 +152,15 @@ La table categories contient les catégories des produits. Chaque catégorie a u
 
 </div>
 
-### 2. Table `produits`
+#### Exemple de requête API (JSON)
+
+```json
+{
+  "nom": "nom_categorie"
+}
+```
+
+### 2.2 Table `produits`
 
 <div style="text-align: justify;">
 
@@ -180,9 +190,23 @@ Relations :
 - Chaque produit appartient à une catégorie (relation avec `categories` via `id_categorie`).
 - Chaque produit est fourni par un fournisseur (relation avec `fournisseurs` via `id_fournisseur`).
 
+#### Exemple de requête API (JSON)
+
+```json
+{
+  "reference": "ref_produit",
+  "nom": "nom_produit",
+  "description_produit": "desc_produit",
+  "prix_unitaire": 1000,
+  "quantite_stock": 20,
+  "id_categorie": 2,
+  "id_fournisseur": 3
+}
+```
+
 </div>
 
-### 3. Table `fournisseurs`
+### 2.3 Table `fournisseurs`
 
 <div style="text-align: justify;">
 
@@ -205,7 +229,21 @@ La table fournisseurs contient les informations sur les fournisseurs des produit
 
 </div>
 
-### 4. Table `clients`
+#### Exemple de requête API (JSON)
+
+```json
+{
+  "nom": "nom_fournisseur",
+  "numero_adresse": 10,
+  "rue_adresse": "rue des fournisseurs",
+  "code_postal": 75001,
+  "ville": "fournisseur ville",
+  "telephone": "0101010101",
+  "email": "fournisseur@email.com"
+}
+```
+
+### 2.4 Table `clients`
 
 <div style="text-align: justify;">
 
@@ -229,7 +267,22 @@ La table clients contient les informations sur les clients.
 
 </div>
 
-### 5. Table `commandes`
+#### Exemple de requête API (JSON)
+
+```json
+{
+  "nom": "nom_client",
+  "prenom": "prenom_client",
+  "numero_adresse": 10,
+  "rue_adresse": "rue des clients",
+  "code_postal": 93340,
+  "ville": "client ville",
+  "telephone": "0101010101",
+  "email": "client@email.com"
+}
+```
+
+### 2.5 Table `commandes`
 
 <div style="text-align: justify;">
 
@@ -256,7 +309,31 @@ Relation :
 
 </div>
 
-### 6. Table `lignes_commandes`
+#### Exemple de requête API (JSON)
+
+```json
+{
+  "date_commande": "2025-02-02",
+  "prix_total": 150.75,
+  "id_client": 1,
+  "lignes_commandes": [
+    {
+      "id_produit": 1,
+      "quantite": 2,
+      "prix_unitaire": 25.0,
+      "total_ligne": 25
+    },
+    {
+      "id_produit": 2,
+      "quantite": 3,
+      "prix_unitaire": 15.25,
+      "total_ligne": 25
+    }
+  ]
+}
+```
+
+### 2.6 Table `lignes_commandes`
 
 <div style="text-align: justify;">
 
@@ -286,7 +363,7 @@ Relations :
 
 </div>
 
-### Relations entre les tables
+### 2.7 Relations entre les tables
 
 <div style="text-align: justify;">
 
@@ -308,7 +385,7 @@ Relations :
 
 </div>
 
-### Diagramme des relations entre les tables
+### 2.8 Diagramme des relations entre les tables
 
 <img src="images\Diagramme_Examen_BDD.drawio.png"/>
 
