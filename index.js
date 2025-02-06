@@ -219,11 +219,11 @@ app.post("/produits", async (req, res) => {
       "id_categorie",
       "id_fournisseur",
     ];
-    for (const field of requiredFields) {
+    requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
-    }
+    });
 
     await connection.beginTransaction();
 
@@ -265,11 +265,11 @@ app.put("/produits/:id", async (req, res) => {
       "id_categorie",
       "id_fournisseur",
     ];
-    for (const field of requiredFields) {
+    requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
-    }
+    });
 
     // Vérifier si le produit existe
     const [produit] = await connection.execute("SELECT * FROM produits WHERE id = ?", [id]);
@@ -377,11 +377,11 @@ app.post("/fournisseurs", async (req, res) => {
   try {
     // Vérifier si les champs obligatoires sont renseignés
     const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
-    for (const field of requiredFields) {
+    requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
-    }
+    });
 
     await connection.beginTransaction();
 
@@ -415,11 +415,11 @@ app.put("/fournisseurs/:id", async (req, res) => {
   try {
     // Vérifier si les champs obligatoires sont renseignés
     const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
-    for (const field of requiredFields) {
+    requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
-    }
+    });
 
     // Vérifier si le fournisseur existe
     const [fournisseur] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id]);
@@ -484,26 +484,86 @@ app.delete("/fournisseurs/:id", async (req, res) => {
 // GET ALL
 app.get("/clients", async (req, res) => {
   const connection = await dbConnection();
-  const [clients] = await connection.query("SELECT * FROM clients");
-  res.json(clients);
+
+  try {
+    // Récupérer tous les clients
+    const [result] = await connection.execute("SELECT * FROM clients");
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des clients: ", error);
+    res.status(500).json({ error: "Échec lors de la récupération des clients", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // GET ONE
 app.get("/clients/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
-  const [clients] = await connection.query(`SELECT * FROM clients WHERE id = ${id}`);
-  res.json(clients[0]);
+
+  try {
+    // Récupérer le client
+    const [result] = await connection.execute("SELECT * FROM clients WHERE id = ?", [id]);
+
+    if (!result.length) {
+      res.status(404).json({ error: "Client non trouvé" });
+    }
+
+    res.status(200).json(result[0]);
+  } catch (error) {
+    console.error("Erreur lors de la récupération du client: ", error);
+    res.status(500).json({ error: "Échec lors de la récupération du client", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // POST
 app.post("/clients", async (req, res) => {
   const connection = await dbConnection();
   const { nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
-  await connection.query(
-    `INSERT INTO clients (nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email) VALUES ('${nom}', '${prenom}', '${numero_adresse}', '${rue_adresse}', '${code_postal}', '${ville}', '${telephone}', '${email}')`
-  );
-  res.send("Client ajouté");
+
+  try {
+    // Vérifier si les champs obligatoires sont renseignés
+    const requiredFields = [
+      "nom",
+      "prenom",
+      "numero_adresse",
+      "rue_adresse",
+      "code_postal",
+      "ville",
+      "telephone",
+      "email",
+    ];
+    requiredFields.forEach((field) => {
+      if (!req.body[field]) {
+        res.status(400).json({ error: `Le champ '${field}' est requis` });
+      }
+    });
+
+    await connection.beginTransaction();
+
+    // Ajouter le client
+    const [row] = await connection.execute(
+      "INSERT INTO clients (nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email]
+    );
+
+    // Récupérer le client ajouté
+    const [result] = await connection.execute("SELECT * FROM clients WHERE id = ?", [row.insertId]);
+
+    await connection.commit();
+
+    res.status(201).json({ message: "Client ajouté", result: result[0] });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de l'ajout du client: ", error);
+    res.status(500).json({ error: "Échec lors de l'ajout du client", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // PUT
@@ -511,18 +571,82 @@ app.put("/clients/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
   const { nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
-  await connection.query(
-    `UPDATE clients SET nom = '${nom}', prenom = '${prenom}', numero_adresse = '${numero_adresse}', rue_adresse = '${rue_adresse}', code_postal = '${code_postal}', ville = '${ville}', telephone = '${telephone}', email = '${email}' WHERE id = '${id}'`
-  );
-  res.send("Client mis à jour");
+  try {
+    // Vérifier si les champs obligatoires sont renseignés
+    const requiredFields = [
+      "nom",
+      "prenom",
+      "numero_adresse",
+      "rue_adresse",
+      "code_postal",
+      "ville",
+      "telephone",
+      "email",
+    ];
+    requiredFields.forEach((field) => {
+      if (!req.body[field]) {
+        res.status(400).json({ error: `Le champ '${field}' est requis` });
+      }
+    });
+
+    // Récupérer le client
+    const [client] = await connection.execute("SELECT * FROM clients WHERE id = ?", [id]);
+
+    if (!client.length) {
+      res.status(404).json({ error: "Client non trouvé" });
+    }
+
+    await connection.beginTransaction();
+
+    // Mettre à jour le client
+    await connection.execute(
+      "UPDATE clients SET nom = ?, prenom = ?, numero_adresse = ?, rue_adresse = ?, code_postal = ?, ville = ?, telephone = ?, email = ? WHERE id = ?",
+      [nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email, id]
+    );
+
+    // Récupérer le client mis à jour
+    const [result] = await connection.execute("SELECT * FROM clients WHERE id = ?", [id]);
+
+    await connection.commit();
+
+    res.status(200).json({ message: "Client mis à jour", result: result[0] });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de la mise à jour du client: ", error);
+    res.status(500).json({ error: "Échec lors de la mise à jour du client", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // DELETE
 app.delete("/clients/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
-  await connection.query(`DELETE FROM clients WHERE id = '${id}'`);
-  res.send("Client supprimé");
+
+  try {
+    // Vérifier si le client existe
+    const [client] = await connection.execute("SELECT * FROM clients WHERE id = ?", [id]);
+
+    if (!client.length) {
+      return res.status(404).json({ message: "Client non trouvé" });
+    }
+
+    await connection.beginTransaction();
+
+    // Supprimer le client
+    await connection.execute("DELETE FROM clients WHERE id = ?", [id]);
+
+    await connection.commit();
+
+    res.status(200).json({ message: "Client supprimé" });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de la suppression du client: ", error);
+    res.status(500).json({ error: "Échec lors de la suppression du client", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // COMMANDE CRUD //////////////////////////////////////////////////////////////////////////////
