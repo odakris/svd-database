@@ -38,7 +38,7 @@ app.get("/categories", async (req, res) => {
     console.error("Erreur lors de la récupération des catégories: ", error);
     res.status(500).json({ error: "Échec lors de la récupération des catégories", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -61,7 +61,7 @@ app.get("/categories/:id", async (req, res) => {
     console.error("Erreur lors de la récupération de la catégorie: ", error);
     res.status(500).json({ error: "Échec lors de la récupération de la catégorie", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -86,13 +86,13 @@ app.post("/categories", async (req, res) => {
 
     await connection.commit();
 
-    res.status(201).json({ message: "Catégorie ajoutée", result });
+    res.status(201).json({ message: "Catégorie ajoutée", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de l'ajout de la catégorie: ", error);
     res.status(500).json({ error: "Échec de l'ajout de la catégorie", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -124,13 +124,13 @@ app.put("/categories/:id", async (req, res) => {
 
     await connection.commit();
 
-    res.status(200).json({ message: "Catégorie mise à jour", result });
+    res.status(200).json({ message: "Catégorie mise à jour", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la mise à jour de la catégorie: ", error);
     res.status(500).json({ error: "Échec de la mise à jour de la catégorie", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -159,7 +159,7 @@ app.delete("/categories/:id", async (req, res) => {
     console.error("Erreur lors de la suppression de la catégorie: ", error);
     res.status(500).json({ error: "Échec de la suppression de la catégorie", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -177,7 +177,7 @@ app.get("/produits", async (req, res) => {
     console.error("Erreur lors de la récupération des produits: ", error);
     res.status(500).json({ error: "Échec lors de la récupération des produits", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -199,7 +199,7 @@ app.get("/produits/:id", async (req, res) => {
     console.error("Erreur lors de la récupération du produit: ", error);
     res.status(500).json({ error: "Échec lors de la récupération du produit", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -210,19 +210,19 @@ app.post("/produits", async (req, res) => {
 
   try {
     // Vérifier si les champs obligatoires sont renseignés
-    if (
-      !reference ||
-      !nom ||
-      !description_produit ||
-      !prix_unitaire ||
-      !quantite_stock ||
-      !id_categorie ||
-      !id_fournisseur
-    ) {
-      return res.status(400).json({
-        error:
-          "Les champs 'reference', 'nom', 'description_produit','prix_unitaire', 'quantite_stock', 'id_categorie' et 'id_fournisseur' sont requis",
-      });
+    const requiredFields = [
+      "reference",
+      "nom",
+      "description_produit",
+      "prix_unitaire",
+      "quantite_stock",
+      "id_categorie",
+      "id_fournisseur",
+    ];
+    for (const field of requiredFields) {
+      if (!req.body[field]) {
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
+      }
     }
 
     await connection.beginTransaction();
@@ -238,13 +238,13 @@ app.post("/produits", async (req, res) => {
 
     await connection.commit();
 
-    res.status(201).json({ message: "Produit ajouté", result });
+    res.status(201).json({ message: "Produit ajouté", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de l'ajout du produit: ", error);
     res.status(500).json({ error: "Échec lors de l'ajout du produit", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -256,19 +256,19 @@ app.put("/produits/:id", async (req, res) => {
 
   try {
     // Vérifier si les champs obligatoires sont renseignés
-    if (
-      !reference ||
-      !nom ||
-      !description_produit ||
-      !prix_unitaire ||
-      !quantite_stock ||
-      !id_categorie ||
-      !id_fournisseur
-    ) {
-      return res.status(400).json({
-        error:
-          "Les champs 'reference', 'nom', 'description_produit','prix_unitaire', 'quantite_stock', 'id_categorie' et 'id_fournisseur' sont requis",
-      });
+    const requiredFields = [
+      "reference",
+      "nom",
+      "description_produit",
+      "prix_unitaire",
+      "quantite_stock",
+      "id_categorie",
+      "id_fournisseur",
+    ];
+    for (const field of requiredFields) {
+      if (!req.body[field]) {
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
+      }
     }
 
     // Vérifier si le produit existe
@@ -291,13 +291,13 @@ app.put("/produits/:id", async (req, res) => {
 
     await connection.commit();
 
-    res.status(200).json({ message: "Produit mis à jour", result });
+    res.status(200).json({ message: "Produit mis à jour", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la mise à jour du produit: ", error);
     res.status(500).json({ error: "Échec lors de la mise à jour du produit", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -327,7 +327,7 @@ app.delete("/produits/:id", async (req, res) => {
     console.error("Erreur lors de la suppression du produit: ", error);
     res.status(500).json({ error: "Échec lors de la suppression du produit", details: error.message });
   } finally {
-    connection.end();
+    await connection.end();
   }
 });
 
@@ -335,26 +335,75 @@ app.delete("/produits/:id", async (req, res) => {
 // GET ALL
 app.get("/fournisseurs", async (req, res) => {
   const connection = await dbConnection();
-  const [fournisseurs] = await connection.query("SELECT * FROM fournisseurs");
-  res.json(fournisseurs);
+
+  try {
+    // Récupérer tous les fournisseurs
+    const [result] = await connection.execute("SELECT * FROM fournisseurs");
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des fournisseurs: ", error);
+    res.status(500).json({ error: "Échec lors de la récupération des fournisseurs", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // GET ONE
 app.get("/fournisseurs/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
-  const [fournisseurs] = await connection.query(`SELECT * FROM fournisseurs WHERE id = ${id}`);
-  res.json(fournisseurs[0]);
+  try {
+    // Récupérer le fournisseur
+    const [result] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id]);
+
+    if (!result.length) {
+      res.status(404).json({ error: "Fournisseur non trouvé" });
+    }
+
+    res.status(200).json(result[0]);
+  } catch (error) {
+    console.error("Erreur lors de la récupération du fournisseur: ", error);
+    res.status(500).json({ error: "Échec lors de la récupération du fournisseur", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // POST
 app.post("/fournisseurs", async (req, res) => {
   const connection = await dbConnection();
   const { nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
-  await connection.query(
-    `INSERT INTO fournisseurs (nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email) VALUES ('${nom}','${numero_adresse}','${rue_adresse}','${code_postal}','${ville}','${telephone}','${email}')`
-  );
-  res.send("Fournisseur ajouté");
+  try {
+    // Vérifier si les champs obligatoires sont renseignés
+    const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
+    for (const field of requiredFields) {
+      if (!req.body[field]) {
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
+      }
+    }
+
+    await connection.beginTransaction();
+
+    // Ajouter le fournisseur
+    const [row] = await connection.execute(
+      "INSERT INTO fournisseurs (nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email]
+    );
+
+    // Récupérer le fournisseur ajouté
+    const [result] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [row.insertId]);
+
+    await connection.commit();
+
+    res.status(201).json({ message: "Fournisseur ajouté", result: result[0] });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de l'ajout du fournisseur: ", error);
+    res.status(500).json({ error: "Échec lors de l'ajout du fournisseur", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // PUT
@@ -362,18 +411,73 @@ app.put("/fournisseurs/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
   const { nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
-  await connection.query(
-    `UPDATE fournisseurs SET nom = '${nom}', numero_adresse = '${numero_adresse}', rue_adresse = '${rue_adresse}', code_postal = '${code_postal}', ville = '${ville}', telephone = '${telephone}', email = '${email}' WHERE id = '${id}'`
-  );
-  res.send("Fournisseurs mis à jour");
+
+  try {
+    // Vérifier si les champs obligatoires sont renseignés
+    const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
+    for (const field of requiredFields) {
+      if (!req.body[field]) {
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
+      }
+    }
+
+    // Vérifier si le fournisseur existe
+    const [fournisseur] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id]);
+
+    if (!fournisseur.length) {
+      res.status(400).json({ error: "Fournisseur non trouvé" });
+    }
+
+    await connection.beginTransaction();
+
+    // Mettre à jour le fournisseur
+    await connection.execute(
+      "UPDATE fournisseurs SET nom = ?, numero_adresse = ?, rue_adresse = ?, code_postal = ?, ville = ?, telephone = ?, email = ? WHERE id = ?",
+      [nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email, id]
+    );
+
+    // Récupérer le fournisseur mis à jour
+    const [result] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id]);
+
+    await connection.commit();
+
+    res.status(200).json({ message: "Fournisseur mis à jour", result: result[0] });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de la mise à jour du fournisseur: ", error);
+    res.status(500).json({ error: "Échec lors de la mise à jour du fournisseur", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // DELETE
 app.delete("/fournisseurs/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
-  await connection.query(`DELETE FROM fournisseurs WHERE id = '${id}'`);
-  res.send("Fournisseur supprimé");
+
+  try {
+    // Verifier si le fournisseur existe
+    const [fournisseur] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id]);
+    if (!fournisseur.length) {
+      return res.status(404).json({ message: "Fournisseur non trouvé" });
+    }
+
+    await connection.beginTransaction();
+
+    // Supprimé le fournisseur
+    await connection.execute("DELETE FROM fournisseurs WHERE id = ?", [id]);
+
+    await connection.commit();
+
+    res.status(200).json({ message: "Fournisseur supprimé" });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de la suppression du fournisseur: ", error);
+    res.status(500).json({ error: "Échec lors de la suppression du fournisseur", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // CLIENTS CRUD //////////////////////////////////////////////////////////////////////////////
