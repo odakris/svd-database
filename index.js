@@ -28,9 +28,11 @@ app.post("/init", async (req, res) => {
 // GET ALL
 app.get("/categories", async (req, res) => {
   const connection = await dbConnection();
+
   try {
     // Récupérer toutes les catégories
     const [result] = await connection.execute("SELECT * FROM categories");
+
     res.status(200).json(result);
   } catch (error) {
     console.error("Erreur lors de la récupération des catégories: ", error);
@@ -43,16 +45,15 @@ app.get("/categories", async (req, res) => {
 // GET ONE
 app.get("/categories/:id", async (req, res) => {
   const connection = await dbConnection();
+  const { id } = req.params;
 
   try {
-    const { id } = req.params;
-
     // Récupérer la catégorie
     const [result] = await connection.execute("SELECT * FROM categories WHERE id = ?", [id]);
 
     // Vérifier si la catégorie existe
     if (!result.length) {
-      return res.status(404).send("Catégorie non trouvée");
+      return res.status(404).json({ error: "Catégorie non trouvée" });
     }
 
     res.status(200).json(result[0]);
@@ -67,10 +68,9 @@ app.get("/categories/:id", async (req, res) => {
 // POST
 app.post("/categories", async (req, res) => {
   const connection = await dbConnection();
+  const { nom } = req.body;
 
   try {
-    const { nom } = req.body;
-
     // Vérifier si le champ 'nom' est renseigné
     if (!nom) {
       return res.status(400).json({ error: "le champ 'nom' est requis" });
@@ -99,23 +99,22 @@ app.post("/categories", async (req, res) => {
 // PUT
 app.put("/categories/:id", async (req, res) => {
   const connection = await dbConnection();
+  const { id } = req.params;
+  const { nom } = req.body;
 
   try {
-    const { id } = req.params;
-    const { nom } = req.body;
-
     // Vérifier si le champ 'nom' est renseigné
     if (!nom) {
       return res.status(400).json({ error: "le champ 'nom' est requis" });
     }
-
-    await connection.beginTransaction();
 
     // Verifier si la catégorie existe
     const [category] = await connection.execute("SELECT * FROM categories WHERE id = ?", [id]);
     if (!category.length) {
       return res.status(404).json({ message: "Catégorie non trouvée" });
     }
+
+    await connection.beginTransaction();
 
     // Mettre à jour la catégorie
     await connection.execute("UPDATE categories SET nom = ? WHERE id = ?", [nom, id]);
@@ -138,17 +137,17 @@ app.put("/categories/:id", async (req, res) => {
 // DELETE
 app.delete("/categories/:id", async (req, res) => {
   const connection = await dbConnection();
+  const { id } = req.params;
 
   try {
-    const { id } = req.params;
-
-    await connection.beginTransaction();
-
     // Verifier si la catégorie existe
     const [category] = await connection.execute("SELECT * FROM categories WHERE id = ?", [id]);
+
     if (!category.length) {
       return res.status(404).json({ message: "Catégorie non trouvée" });
     }
+
+    await connection.beginTransaction();
 
     // Supprimer la catégorie
     await connection.execute("DELETE FROM categories WHERE id = ?", [id]);
@@ -168,26 +167,85 @@ app.delete("/categories/:id", async (req, res) => {
 // GET ALL
 app.get("/produits", async (req, res) => {
   const connection = await dbConnection();
-  const [produits] = await connection.query("SELECT * FROM produits");
-  res.json(produits);
+
+  try {
+    // Récupérer tous les produits
+    const [result] = await connection.execute("SELECT * FROM produits");
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des produits: ", error);
+    res.status(500).json({ error: "Échec lors de la récupération des produits", details: error.message });
+  } finally {
+    connection.end();
+  }
 });
 
 // GET ONE
 app.get("/produits/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
-  const [produits] = await connection.query(`SELECT * FROM produits WHERE id = ${id}`);
-  res.json(produits[0]);
+
+  try {
+    // Récupérer le produit
+    const [result] = await connection.execute("SELECT * FROM produits WHERE id = ?", [id]);
+
+    if (!result.length) {
+      res.status(404).json({ error: "Produit non trouvé" });
+    }
+
+    res.status(200).json(result[0]);
+  } catch (error) {
+    console.error("Erreur lors de la récupération du produit: ", error);
+    res.status(500).json({ error: "Échec lors de la récupération du produit", details: error.message });
+  } finally {
+    connection.end();
+  }
 });
 
 // POST
 app.post("/produits", async (req, res) => {
   const connection = await dbConnection();
   const { reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur } = req.body;
-  await connection.query(
-    `INSERT INTO produits (reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur) VALUES ('${reference}','${nom}','${description_produit}','${prix_unitaire}','${quantite_stock}','${id_categorie}','${id_fournisseur}')`
-  );
-  res.send("Produit ajouté");
+
+  try {
+    // Vérifier si les champs obligatoires sont renseignés
+    if (
+      !reference ||
+      !nom ||
+      !description_produit ||
+      !prix_unitaire ||
+      !quantite_stock ||
+      !id_categorie ||
+      !id_fournisseur
+    ) {
+      return res.status(400).json({
+        error:
+          "Les champs 'reference', 'nom', 'description_produit','prix_unitaire', 'quantite_stock', 'id_categorie' et 'id_fournisseur' sont requis",
+      });
+    }
+
+    await connection.beginTransaction();
+
+    // Ajouter le produit
+    const [row] = await connection.execute(
+      "INSERT INTO produits (reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur]
+    );
+
+    // Récupérer le produit ajouté
+    const [result] = await connection.execute("SELECT * FROM produits WHERE id = ?", [row.insertId]);
+
+    await connection.commit();
+
+    res.status(201).json({ message: "Produit ajouté", result });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de l'ajout du produit: ", error);
+    res.status(500).json({ error: "Échec lors de l'ajout du produit", details: error.message });
+  } finally {
+    connection.end();
+  }
 });
 
 // PUT
@@ -195,18 +253,82 @@ app.put("/produits/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
   const { reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur } = req.body;
-  await connection.query(
-    `UPDATE produits SET reference = '${reference}', nom = '${nom}', description_produit = '${description_produit}', prix_unitaire = '${prix_unitaire}', quantite_stock = '${quantite_stock}', id_categorie = '${id_categorie}', id_fournisseur = '${id_fournisseur}' WHERE id = '${id}'`
-  );
-  res.send("Produit mis à jour");
+
+  try {
+    // Vérifier si les champs obligatoires sont renseignés
+    if (
+      !reference ||
+      !nom ||
+      !description_produit ||
+      !prix_unitaire ||
+      !quantite_stock ||
+      !id_categorie ||
+      !id_fournisseur
+    ) {
+      return res.status(400).json({
+        error:
+          "Les champs 'reference', 'nom', 'description_produit','prix_unitaire', 'quantite_stock', 'id_categorie' et 'id_fournisseur' sont requis",
+      });
+    }
+
+    // Vérifier si le produit existe
+    const [produit] = await connection.execute("SELECT * FROM produits WHERE id = ?", [id]);
+
+    if (!produit.length) {
+      res.status(400).json({ error: "Produit non trouvé" });
+    }
+
+    await connection.beginTransaction();
+
+    // Mettre à jour le produit
+    await connection.execute(
+      "UPDATE produits SET reference = ?, nom = ?, description_produit = ?, prix_unitaire = ?, quantite_stock = ?, id_categorie = ?, id_fournisseur = ? WHERE id = ?",
+      [reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur, id]
+    );
+
+    // Récupérer le produit mis à jour
+    const [result] = await connection.execute("SELECT * FROM produits WHERE id = ?", [id]);
+
+    await connection.commit();
+
+    res.status(200).json({ message: "Produit mis à jour", result });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de la mise à jour du produit: ", error);
+    res.status(500).json({ error: "Échec lors de la mise à jour du produit", details: error.message });
+  } finally {
+    connection.end();
+  }
 });
 
 // DELETE
 app.delete("/produits/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
-  await connection.query(`DELETE FROM produits WHERE id = '${id}'`);
-  res.send("Produit supprimé");
+
+  try {
+    // Vérifier si le produit existe
+    const [produit] = await connection.execute("SELECT * FROM produits WHERE id = ?", [id]);
+
+    if (!produit.length) {
+      return res.status(404).json({ error: "Produit non trouvé" });
+    }
+
+    await connection.beginTransaction();
+
+    // Supprimer le produit
+    await connection.execute("DELETE FROM produits WHERE id = ?", [id]);
+
+    await connection.commit();
+
+    res.status(200).json({ message: "Produit supprimé" });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de la suppression du produit: ", error);
+    res.status(500).json({ error: "Échec lors de la suppression du produit", details: error.message });
+  } finally {
+    connection.end();
+  }
 });
 
 // FOURNISSEURS CRUD //////////////////////////////////////////////////////////////////////////////
