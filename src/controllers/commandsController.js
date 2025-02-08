@@ -1,4 +1,5 @@
 const dbConnection = require("../db/dbConnection");
+const getCommands = require("../utils/getCommands");
 
 // Récupérer toutes les commandes
 const getAllCommands = async (req, res) => {
@@ -34,37 +35,13 @@ const getAllCommands = async (req, res) => {
 
   try {
     // Récupérer les commandes
-    const [rows] = await connection.execute(query, queryParams);
+    const commands = await getCommands(connection, query, queryParams);
 
-    if (!rows.length) {
+    if (!commands.length) {
       return res.status(404).json({ error: "Aucune commande trouvée" });
     }
 
-    // Regrouper les commandes par ID
-    const commandes = {};
-    rows.forEach((row) => {
-      // Si la commande n'existe pas, l'ajouter
-      if (!commandes[row.id]) {
-        commandes[row.id] = {
-          id: row.id,
-          date_commande: new Date(row.date_commande).toISOString().split("T")[0],
-          id_client: row.id_client,
-          lignes_commandes: [],
-        };
-      }
-      // Ajouter la ligne de commande à la commande
-      if (row.ligne_id) {
-        commandes[row.id].lignes_commandes.push({
-          id: row.ligne_id,
-          id_produit: row.id_produit,
-          quantite: row.quantite,
-          prix_unitaire: row.prix_unitaire,
-          total_ligne: row.total_ligne,
-        });
-      }
-    });
-
-    return res.status(200).json(Object.values(commandes));
+    return res.status(200).json(commands);
   } catch (error) {
     console.error("Erreur lors de la récupération des commandes: ", error);
     return res.status(500).json({ error: "Échec lors de la récupération des commandes", details: error.message });
