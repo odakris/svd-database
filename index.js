@@ -48,6 +48,11 @@ app.get("/categories/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Récupérer la catégorie
     const [result] = await connection.execute("SELECT * FROM categories WHERE id = ?", [id]);
@@ -74,7 +79,7 @@ app.post("/categories", async (req, res) => {
   try {
     // Vérifier si le champ 'nom' est renseigné
     if (!nom) {
-      return res.status(404).json({ error: "le champ 'nom' est requis" });
+      return res.status(400).json({ error: "le champ 'nom' est requis" });
     }
 
     await connection.beginTransaction();
@@ -103,10 +108,15 @@ app.put("/categories/:id", async (req, res) => {
   const { id } = req.params;
   const { nom } = req.body;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Vérifier si le champ 'nom' est renseigné
     if (!nom) {
-      return res.status(404).json({ error: "le champ 'nom' est requis" });
+      return res.status(400).json({ error: "le champ 'nom' est requis" });
     }
 
     // Verifier si la catégorie existe
@@ -139,6 +149,11 @@ app.put("/categories/:id", async (req, res) => {
 app.delete("/categories/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
+
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
 
   try {
     // Verifier si la catégorie existe
@@ -187,6 +202,11 @@ app.get("/produits/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Récupérer le produit
     const [result] = await connection.execute("SELECT * FROM produits WHERE id = ?", [id]);
@@ -222,17 +242,17 @@ app.post("/produits", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
     // Vérifier si la quantité et le prix unitaire sont supérieurs à 0
     if (quantite_stock <= 0) {
-      return res.status(404).json({
+      return res.status(400).json({
         error: "La quantité de produit doit être supérieure à 0",
       });
     } else if (prix_unitaire <= 0) {
-      return res.status(404).json({
+      return res.status(400).json({
         error: "Le prix unitaire de produit doit être supérieur à 0",
       });
     }
@@ -278,6 +298,11 @@ app.put("/produits/:id", async (req, res) => {
   const { id } = req.params;
   const { reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur } = req.body;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Vérifier si les champs obligatoires sont renseignés
     const requiredFields = [
@@ -291,7 +316,7 @@ app.put("/produits/:id", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -307,7 +332,7 @@ app.put("/produits/:id", async (req, res) => {
         error: "La quantité de produit doit être supérieure à 0",
       });
     } else if (prix_unitaire <= 0) {
-      return res.status(404).json({
+      return res.status(400).json({
         error: "Le prix unitaire de produit doit être supérieur à 0",
       });
     }
@@ -351,6 +376,11 @@ app.put("/produits/:id", async (req, res) => {
 app.delete("/produits/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
+
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
 
   try {
     // Vérifier si le produit existe
@@ -400,6 +430,11 @@ app.get("/fournisseurs/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Récupérer le fournisseur
     const [result] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id]);
@@ -427,7 +462,7 @@ app.post("/fournisseurs", async (req, res) => {
     const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -460,12 +495,17 @@ app.put("/fournisseurs/:id", async (req, res) => {
   const { id } = req.params;
   const { nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Vérifier si les champs obligatoires sont renseignés
     const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -503,6 +543,11 @@ app.put("/fournisseurs/:id", async (req, res) => {
 app.delete("/fournisseurs/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
+
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
 
   try {
     // Verifier si le fournisseur existe
@@ -551,6 +596,11 @@ app.get("/clients/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Récupérer le client
     const [result] = await connection.execute("SELECT * FROM clients WHERE id = ?", [id]);
@@ -587,7 +637,7 @@ app.post("/clients", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -620,6 +670,11 @@ app.put("/clients/:id", async (req, res) => {
   const { id } = req.params;
   const { nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Vérifier si les champs obligatoires sont renseignés
     const requiredFields = [
@@ -634,7 +689,7 @@ app.put("/clients/:id", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(400).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -672,6 +727,11 @@ app.put("/clients/:id", async (req, res) => {
 app.delete("/clients/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
+
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
 
   try {
     // Vérifier si le client existe
@@ -733,6 +793,11 @@ app.get("/commandes/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Récupérer la commande
     const [commande] = await connection.execute("SELECT * FROM commandes WHERE id = ?", [id]);
@@ -766,7 +831,7 @@ app.post("/commandes", async (req, res) => {
     const requiredFields = ["date_commande", "id_client", "lignes_commandes"];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(404).json({ error: `Le champ '${field}' est requis pour la commande` });
+        return res.status(400).json({ error: `Le champ '${field}' est requis pour la commande` });
       }
     });
 
@@ -775,7 +840,7 @@ app.post("/commandes", async (req, res) => {
     lignesCommandesRequiredFields.forEach((field) => {
       lignes_commandes.forEach((ligne) => {
         if (!ligne[field]) {
-          return res.status(404).json({ error: `Le champ '${field}' est requis pour les lignes commandes` });
+          return res.status(400).json({ error: `Le champ '${field}' est requis pour les lignes commandes` });
         }
       });
     });
@@ -783,7 +848,7 @@ app.post("/commandes", async (req, res) => {
     // Vérifier si la date de commande est au bon format
     if (!Date.parse(date_commande)) {
       return res
-        .status(404)
+        .status(400)
         .json({ error: "Le format de la date de commande est invalide", message: "Format: YYYY-DD-MM" });
     }
 
@@ -812,7 +877,7 @@ app.post("/commandes", async (req, res) => {
       // Vérifier si la quantité de produit est suffisante
       else if (produit[0].quantite_stock < ligne.quantite) {
         await connection.rollback();
-        return res.status(404).json({
+        return res.status(400).json({
           error: `Quantité de produit '${produit[0].reference} - ${produit[0].nom}' insuffisante`,
           message: `Quantité en stock: ${produit[0].quantite_stock}`,
         });
@@ -821,7 +886,7 @@ app.post("/commandes", async (req, res) => {
       // Vérifier si la quantité est supérieurs à 0
       if (ligne.quantite <= 0) {
         await connection.rollback();
-        return res.status(404).json({
+        return res.status(400).json({
           error: "La quantité de produit doit être supérieure à 0",
         });
       }
@@ -863,12 +928,17 @@ app.put("/commandes/:id", async (req, res) => {
   const { id } = req.params;
   const { date_commande, id_client, lignes_commandes } = req.body;
 
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
   try {
     // Vérifier si les champs obligatoires sont renseignés pour la commande
     const requiredFields = ["date_commande", "id_client", "lignes_commandes"];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        return res.status(404).json({ error: `Le champ '${field}' est requis pour la commande` });
+        return res.status(400).json({ error: `Le champ '${field}' est requis pour la commande` });
       }
     });
 
@@ -877,7 +947,7 @@ app.put("/commandes/:id", async (req, res) => {
     lignes_commandes.forEach((ligne) => {
       lignesCommandesRequiredFields.forEach((field) => {
         if (!ligne[field]) {
-          return res.status(404).json({ error: `Le champ '${field}' est requis pour les lignes commandes` });
+          return res.status(400).json({ error: `Le champ '${field}' est requis pour les lignes commandes` });
         }
       });
     });
@@ -885,7 +955,7 @@ app.put("/commandes/:id", async (req, res) => {
     // Vérifier si la date de commande est au bon format
     if (!Date.parse(date_commande)) {
       return res
-        .status(404)
+        .status(400)
         .json({ error: "Le format de la date de commande est invalide", message: "Format: YYYY-DD-MM" });
     }
 
@@ -924,7 +994,7 @@ app.put("/commandes/:id", async (req, res) => {
       // Vérifier si la quantité de produit est suffisante
       else if (produit[0].quantite_stock < ligne.quantite) {
         await connection.rollback();
-        return res.status(404).json({
+        return res.status(400).json({
           error: `Quantité de produit '${produit[0].reference} - ${produit[0].nom}' insuffisante`,
           message: `Quantité en stock: ${produit[0].quantite_stock}`,
         });
@@ -933,7 +1003,7 @@ app.put("/commandes/:id", async (req, res) => {
       // Vérifier si la quantité est supérieurs à 0
       if (ligne.quantite <= 0) {
         await connection.rollback();
-        return res.status(404).json({
+        return res.status(400).json({
           error: "La quantité de produit doit être supérieure à 0",
         });
       }
@@ -973,6 +1043,11 @@ app.put("/commandes/:id", async (req, res) => {
 app.delete("/commandes/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
+
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
 
   try {
     // Vérifier si la commande existe
