@@ -1,4 +1,5 @@
 const dbConnection = require("../db/dbConnection");
+const { getCommands } = require("../utils/getCommands");
 
 // Récupérer tous les produits
 const getAllProducts = async (req, res) => {
@@ -39,6 +40,39 @@ const getProductById = async (req, res) => {
   } catch (error) {
     console.error("Erreur lors de la récupération du produit: ", error);
     return res.status(500).json({ error: "Échec lors de la récupération du produit", details: error.message });
+  } finally {
+    await connection.end();
+  }
+};
+
+// Récupérer les commandes par ID produit
+const getCommandsByProductId = async (req, res) => {
+  const connection = await dbConnection();
+  const { id } = req.params;
+
+  // Vérifier si l'ID est un nombre
+  if (isNaN(id)) {
+    return res.status(400).json({ error: "L'ID doit être un nombre valide" });
+  }
+
+  const queryCondition = "WHERE lc.id_produit = ?";
+  const queryParams = [id];
+
+  try {
+    // Récupérer les commandes par ID produit
+    const commandes = await getCommands(connection, queryCondition, queryParams);
+
+    // Si aucune commande n'est trouvée
+    if (!commandes.length) {
+      return res.status(404).json({ message: "Aucune commande trouvée pour ce produit" });
+    }
+
+    return res.status(200).json(commandes);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des commandes par produit: ", error);
+    return res
+      .status(500)
+      .json({ error: "Échec lors de la récupération des commandes par produit", details: error.message });
   } finally {
     await connection.end();
   }
@@ -225,13 +259,11 @@ const deleteProduct = async (req, res) => {
       await connection.execute("DELETE FROM produits WHERE id = ?", [id]);
     } catch (error) {
       await connection.rollback();
-      return res
-        .status(500)
-        .json({
-          error: "Échec lors de la suppression du produit",
-          message: "Le produit ne peut être supprimé s'il est lié à une commande",
-          details: error,
-        });
+      return res.status(500).json({
+        error: "Échec lors de la suppression du produit",
+        message: "Le produit ne peut être supprimé s'il est lié à une commande",
+        details: error,
+      });
     }
 
     await connection.commit();
@@ -250,4 +282,11 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct };
+module.exports = {
+  getAllProducts,
+  getProductById,
+  getCommandsByProductId,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};
