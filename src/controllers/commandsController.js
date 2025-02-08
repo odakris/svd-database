@@ -1,12 +1,14 @@
+const e = require("express");
 const dbConnection = require("../db/dbConnection");
 const { getCommands } = require("../utils/getCommands");
 
 // Récupérer toutes les commandes
 const getAllCommands = async (req, res) => {
   const connection = await dbConnection();
-  const { start, end } = req.query;
+  const { start, end, id_client, id_produit, prix_min, prix_max } = req.query;
   const queryParams = [];
-  let queryCondition = "";
+  let queryCondition = "WHERE ";
+  const filter = [];
 
   // Vérifier si les dates de début et de fin sont renseignées
   if (start && end) {
@@ -16,8 +18,49 @@ const getAllCommands = async (req, res) => {
         .status(400)
         .json({ error: "Le format des dates de début et de fin est invalide", message: "Format: YYYY-DD-MM" });
     }
-    queryCondition = "WHERE c.date_commande BETWEEN ? AND ?";
+    filter.push("c.date_commande BETWEEN ? AND ?");
     queryParams.push(start, end);
+  }
+  // Vérifier si seulement la date de début est renseignée
+  else if (start && !end) {
+    filter.push("c.date_commande > ?");
+    queryParams.push(start);
+  }
+  // Vérifier si seulement la date de fin est renseignée
+  else if (!start && end) {
+    filter.push("c.date_commande < ?");
+    queryParams.push(end);
+  }
+
+  // Vérifier si id_client est renseigné
+  if (id_client) {
+    filter.push("c.id_client = ?");
+    queryParams.push(id_client);
+  }
+
+  // Vérifier si id_produit est renseigné
+  if (id_produit) {
+    filter.push("lc.id_produit = ?");
+    queryParams.push(id_produit);
+  }
+
+  // Vérifier si le prix_min est renseigné
+  if (prix_min) {
+    filter.push("c.prix_total >= ?");
+    queryParams.push(prix_min);
+  }
+
+  // Vérifier si le prix_max est renseigné
+  if (prix_max) {
+    filter.push("c.prix_total <= ?");
+    queryParams.push(prix_max);
+  }
+
+  // Définir la condition de la requête
+  if (filter.length) {
+    queryCondition += filter.join(" AND ");
+  } else {
+    queryCondition = "";
   }
 
   try {
