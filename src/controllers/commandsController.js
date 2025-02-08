@@ -1,24 +1,12 @@
 const dbConnection = require("../db/dbConnection");
-const getCommands = require("../utils/getCommands");
+const { getCommands } = require("../utils/getCommands");
 
 // Récupérer toutes les commandes
 const getAllCommands = async (req, res) => {
   const connection = await dbConnection();
   const { start, end } = req.query;
   const queryParams = [];
-
-  let query = `
-    SELECT 
-      c.id, 
-      c.date_commande, 
-      c.id_client, 
-      lc.id AS ligne_id, 
-      lc.id_produit, 
-      lc.quantite, 
-      lc.prix_unitaire,
-      lc.total_ligne
-    FROM commandes c
-    JOIN lignes_commandes lc ON c.id = lc.id_commande`;
+  let queryCondition = "";
 
   // Vérifier si les dates de début et de fin sont renseignées
   if (start && end) {
@@ -28,14 +16,13 @@ const getAllCommands = async (req, res) => {
         .status(400)
         .json({ error: "Le format des dates de début et de fin est invalide", message: "Format: YYYY-DD-MM" });
     }
-
-    query += " WHERE c.date_commande BETWEEN ? AND ?";
+    queryCondition = "WHERE c.date_commande BETWEEN ? AND ?";
     queryParams.push(start, end);
   }
 
   try {
     // Récupérer les commandes
-    const commands = await getCommands(connection, query, queryParams);
+    const commands = await getCommands(connection, queryCondition, queryParams);
 
     if (!commands.length) {
       return res.status(404).json({ error: "Aucune commande trouvée" });
@@ -60,21 +47,17 @@ const getCommandById = async (req, res) => {
     return res.status(400).json({ error: "L'ID doit être un nombre valide" });
   }
 
+  const queryCondition = "WHERE c.id = ?";
+  const queryParams = [id];
   try {
     // Récupérer la commande
-    const [commande] = await connection.execute("SELECT * FROM commandes WHERE id = ?", [id]);
-    // Formater la date de commande
-    commande[0].date_commande = new Date(commande[0].date_commande).toISOString().split("T")[0];
+    const commandes = await getCommands(connection, queryCondition, queryParams);
 
-    // Vérifier si la commande existe
-    if (!commande.length) {
+    if (!commandes.length) {
       return res.status(404).json({ error: "Commande non trouvée" });
     }
 
-    // Récupérer les lignes de commande pour la commande
-    const [lignes_commande] = await connection.execute("SELECT * FROM lignes_commandes WHERE id_commande = ?", [id]);
-
-    return res.status(200).json({ commande: commande[0], lignes_commande });
+    return res.status(200).json(commandes);
   } catch (error) {
     console.error("Erreur lors de la récupération de la commande: ", error);
     return res.status(500).json({ error: "Échec lors de la récupération de la commande", details: error.message });
@@ -174,19 +157,12 @@ const createCommand = async (req, res) => {
 
     await connection.commit();
 
+    const queryCondition = "WHERE c.id = ?";
+    const queryParams = [commande.insertId];
     // Récupérer la commande ajoutée
-    const [resultCommande] = await connection.execute("SELECT * FROM commandes WHERE id = ?", [commande.insertId]);
-    // Formater la date de commande
-    resultCommande[0].date_commande = new Date(resultCommande[0].date_commande).toISOString().split("T")[0];
+    const resultCommand = await getCommands(connection, queryCondition, queryParams);
 
-    // Récupérer les lignes de commande ajoutées
-    const [resultLignesCommande] = await connection.execute("SELECT * FROM lignes_commandes WHERE id_commande = ?", [
-      commande.insertId,
-    ]);
-
-    return res
-      .status(201)
-      .json({ message: "Commande ajoutée", commande: resultCommande[0], lignes_commande: resultLignesCommande });
+    return res.status(201).json({ message: "Commande ajoutée", commande: resultCommand });
   } catch (error) {
     try {
       await connection.rollback();
@@ -307,19 +283,13 @@ const updateCommand = async (req, res) => {
 
     await connection.commit();
 
+    const queryCondition = "WHERE c.id = ?";
+    const queryParams = [id];
+
     // Récupérer la commande mise à jour
-    const [resultCommande] = await connection.execute("SELECT * FROM commandes WHERE id = ?", [id]);
-    // Formater la date de commande
-    resultCommande[0].date_commande = new Date(resultCommande[0].date_commande).toISOString().split("T")[0];
+    const resultCommand = await getCommands(connection, queryCondition, queryParams);
 
-    // Récupérer les lignes de commande mises à jour
-    const [resultLignesCommande] = await connection.execute("SELECT * FROM lignes_commandes WHERE id_commande = ?", [
-      id,
-    ]);
-
-    return res
-      .status(201)
-      .json({ message: "Commande mise à jour", commande: resultCommande[0], lignes_commande: resultLignesCommande });
+    return res.status(201).json({ message: "Commande mise à jour", commande: resultCommand });
   } catch (error) {
     try {
       await connection.rollback();

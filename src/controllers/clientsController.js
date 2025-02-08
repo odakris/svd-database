@@ -1,4 +1,5 @@
 const dbConnection = require("../db/dbConnection");
+const { getCommands } = require("../utils/getCommands");
 
 // Récupérer tous les clients
 const getAllClients = async (req, res) => {
@@ -50,58 +51,23 @@ const getCommandsByClientId = async (req, res) => {
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre
-  if (!id || isNaN(id)) {
+  if (isNaN(id)) {
     return res.status(400).json({ error: "L'ID doit être un nombre valide" });
   }
 
+  const queryCondition = "WHERE c.id_client = ?";
+  const queryParams = [id];
+
   try {
-    // Récupérer les commandes du client
-    const [rows] = await connection.execute(
-      `SELECT 
-        c.id, 
-        c.date_commande, 
-        c.id_client, 
-        lc.id AS ligne_id, 
-        lc.id_produit, 
-        lc.quantite, 
-        lc.prix_unitaire,
-        lc.total_ligne
-      FROM commandes c
-      JOIN lignes_commandes lc ON c.id = lc.id_commande
-      WHERE c.id_client = ?`,
-      [id]
-    );
+    // Récupérer les commandes
+    const commandes = await getCommands(connection, queryCondition, queryParams);
 
     // Si aucune commande n'est trouvée
-    if (!rows.length) {
+    if (!commandes.length) {
       return res.status(404).json({ error: "Aucune commande trouvée pour ce client" });
     }
 
-    // Regrouper les commandes par ID
-    const commandes = {};
-    rows.forEach((row) => {
-      // Si la commande n'existe pas, l'ajouter
-      if (!commandes[row.id]) {
-        commandes[row.id] = {
-          id: row.id,
-          date_commande: new Date(row.date_commande).toISOString().split("T")[0],
-          id_client: row.id_client,
-          lignes_commandes: [],
-        };
-      }
-      // Ajouter la ligne de commande à la commande
-      if (row.ligne_id) {
-        commandes[row.id].lignes_commandes.push({
-          id: row.ligne_id,
-          id_produit: row.id_produit,
-          quantite: row.quantite,
-          prix_unitaire: row.prix_unitaire,
-          total_ligne: row.total_ligne,
-        });
-      }
-    });
-
-    return res.status(200).json(Object.values(commandes));
+    return res.status(200).json(commandes);
   } catch (error) {
     console.error("Erreur lors de la récupération des commandes du client: ", error);
     return res

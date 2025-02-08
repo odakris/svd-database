@@ -1,6 +1,23 @@
-// Récupérer les commandes avec un éventuel filtre par date
-const getCommands = async (connection, query, queryParams = []) => {
+// Query par défaut pour récupérer les commandes
+const defaultQuery = `
+    SELECT
+      c.id,
+      c.date_commande,
+      c.id_client,
+      c.prix_total,
+      lc.id AS ligne_id,
+      lc.id_produit,
+      lc.quantite,
+      lc.prix_unitaire,
+      lc.total_ligne
+    FROM commandes c
+    JOIN lignes_commandes lc ON c.id = lc.id_commande`;
+
+// Récupérer les commandes avec un filtre optionel
+const getCommands = async (connection, queryConditions, queryParams = []) => {
   try {
+    // Créer la requête
+    const query = `${defaultQuery} ${queryConditions}`;
     // Exécuter la requête
     const [rows] = await connection.execute(query, queryParams);
 
@@ -17,6 +34,7 @@ const getCommands = async (connection, query, queryParams = []) => {
           id: row.id,
           date_commande: new Date(row.date_commande).toISOString().split("T")[0],
           id_client: row.id_client,
+          prix_total: row.prix_total,
           lignes_commandes: [],
         };
       }
@@ -37,8 +55,8 @@ const getCommands = async (connection, query, queryParams = []) => {
     return Object.values(commandes);
   } catch (error) {
     console.error("Erreur lors de l'exécution de la requête : ", error);
-    throw new Error("Erreur lors de la récupération des commandes");
+    return [];
   }
 };
 
-module.exports = getCommands;
+module.exports = { getCommands };
