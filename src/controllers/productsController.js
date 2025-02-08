@@ -221,7 +221,18 @@ const deleteProduct = async (req, res) => {
     await connection.beginTransaction();
 
     // Supprimer le produit
-    await connection.execute("DELETE FROM produits WHERE id = ?", [id]);
+    try {
+      await connection.execute("DELETE FROM produits WHERE id = ?", [id]);
+    } catch (error) {
+      await connection.rollback();
+      return res
+        .status(500)
+        .json({
+          error: "Échec lors de la suppression du produit",
+          message: "Le produit ne peut être supprimé s'il est lié à une commande",
+          details: error,
+        });
+    }
 
     await connection.commit();
 
