@@ -173,10 +173,10 @@ app.get("/produits", async (req, res) => {
     // Récupérer tous les produits
     const [result] = await connection.execute("SELECT * FROM produits");
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Erreur lors de la récupération des produits: ", error);
-    res.status(500).json({ error: "Échec lors de la récupération des produits", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la récupération des produits", details: error.message });
   } finally {
     await connection.end();
   }
@@ -192,13 +192,13 @@ app.get("/produits/:id", async (req, res) => {
     const [result] = await connection.execute("SELECT * FROM produits WHERE id = ?", [id]);
 
     if (!result.length) {
-      res.status(404).json({ error: "Produit non trouvé" });
+      return res.status(404).json({ error: "Produit non trouvé" });
     }
 
-    res.status(200).json(result[0]);
+    return res.status(200).json(result[0]);
   } catch (error) {
     console.error("Erreur lors de la récupération du produit: ", error);
-    res.status(500).json({ error: "Échec lors de la récupération du produit", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la récupération du produit", details: error.message });
   } finally {
     await connection.end();
   }
@@ -222,9 +222,32 @@ app.post("/produits", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
+
+    // Vérifier si la quantité et le prix unitaire sont supérieurs à 0
+    if (quantite_stock <= 0) {
+      return res.status(404).json({
+        error: "La quantité de produit doit être supérieure à 0",
+      });
+    } else if (prix_unitaire <= 0) {
+      return res.status(404).json({
+        error: "Le prix unitaire de produit doit être supérieur à 0",
+      });
+    }
+
+    // Vérifier si la catégorie existe
+    const [categorie] = await connection.execute("SELECT * FROM categories WHERE id = ?", [id_categorie]);
+    if (!categorie.length) {
+      return res.status(404).json({ error: "Catégorie non trouvée" });
+    }
+
+    // Vérifier si le fournisseur existe
+    const [fournisseur] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id_fournisseur]);
+    if (!fournisseur.length) {
+      return res.status(404).json({ error: "Fournisseur non trouvé" });
+    }
 
     await connection.beginTransaction();
 
@@ -239,11 +262,11 @@ app.post("/produits", async (req, res) => {
 
     await connection.commit();
 
-    res.status(201).json({ message: "Produit ajouté", result: result[0] });
+    return res.status(201).json({ message: "Produit ajouté", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de l'ajout du produit: ", error);
-    res.status(500).json({ error: "Échec lors de l'ajout du produit", details: error.message });
+    return res.status(500).json({ error: "Échec lors de l'ajout du produit", details: error.message });
   } finally {
     await connection.end();
   }
@@ -268,15 +291,37 @@ app.put("/produits/:id", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
     // Vérifier si le produit existe
     const [produit] = await connection.execute("SELECT * FROM produits WHERE id = ?", [id]);
-
     if (!produit.length) {
-      res.status(404).json({ error: "Produit non trouvé" });
+      return res.status(404).json({ error: "Produit non trouvé" });
+    }
+
+    // Vérifier si la quantité et le prix unitaire sont supérieurs à 0
+    if (quantite_stock <= 0) {
+      return res.status(404).json({
+        error: "La quantité de produit doit être supérieure à 0",
+      });
+    } else if (prix_unitaire <= 0) {
+      return res.status(404).json({
+        error: "Le prix unitaire de produit doit être supérieur à 0",
+      });
+    }
+
+    // Vérifier si la catégorie existe
+    const [categorie] = await connection.execute("SELECT * FROM categories WHERE id = ?", [id_categorie]);
+    if (!categorie.length) {
+      return res.status(404).json({ error: "Catégorie non trouvée" });
+    }
+
+    // Vérifier si le fournisseur existe
+    const [fournisseur] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id_fournisseur]);
+    if (!fournisseur.length) {
+      return res.status(404).json({ error: "Fournisseur non trouvé" });
     }
 
     await connection.beginTransaction();
@@ -292,11 +337,11 @@ app.put("/produits/:id", async (req, res) => {
 
     await connection.commit();
 
-    res.status(200).json({ message: "Produit mis à jour", result: result[0] });
+    return res.status(200).json({ message: "Produit mis à jour", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la mise à jour du produit: ", error);
-    res.status(500).json({ error: "Échec lors de la mise à jour du produit", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la mise à jour du produit", details: error.message });
   } finally {
     await connection.end();
   }
@@ -322,11 +367,11 @@ app.delete("/produits/:id", async (req, res) => {
 
     await connection.commit();
 
-    res.status(200).json({ message: "Produit supprimé" });
+    return res.status(200).json({ message: "Produit supprimé" });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la suppression du produit: ", error);
-    res.status(500).json({ error: "Échec lors de la suppression du produit", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la suppression du produit", details: error.message });
   } finally {
     await connection.end();
   }
