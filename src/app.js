@@ -8,6 +8,7 @@ const suppliersRoutes = require("./routes/suppliersRoutes");
 const clientsRoutes = require("./routes/clientsRoutes");
 const commandsRoutes = require("./routes/commandsRoutes");
 const linesRoutes = require("./routes/linesRoutes");
+const statisticsRoutes = require("./routes/statisticsRoutes");
 
 // Routes
 app.use("/categories", categoriesRoutes);
@@ -16,5 +17,6 @@ app.use("/fournisseurs", suppliersRoutes);
 app.use("/clients", clientsRoutes);
 app.use("/commandes", commandsRoutes);
 app.use("/lignes", linesRoutes);
+app.use("/statistiques", statisticsRoutes);
 
 module.exports = app;
