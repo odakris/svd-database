@@ -22,7 +22,7 @@ const dbConnection = async () => {
 // Initialisation de la base de données
 app.post("/init", async (req, res) => {
   await initDB();
-  res.send("Base de données initialisée avec succès !");
+  return res.send("Base de données initialisée avec succès !");
 });
 
 // CATEGORIES CRUD //////////////////////////////////////////////////////////////////////////////
@@ -34,10 +34,10 @@ app.get("/categories", async (req, res) => {
     // Récupérer toutes les catégories
     const [result] = await connection.execute("SELECT * FROM categories");
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Erreur lors de la récupération des catégories: ", error);
-    res.status(500).json({ error: "Échec lors de la récupération des catégories", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la récupération des catégories", details: error.message });
   } finally {
     await connection.end();
   }
@@ -57,10 +57,10 @@ app.get("/categories/:id", async (req, res) => {
       return res.status(404).json({ error: "Catégorie non trouvée" });
     }
 
-    res.status(200).json(result[0]);
+    return res.status(200).json(result[0]);
   } catch (error) {
     console.error("Erreur lors de la récupération de la catégorie: ", error);
-    res.status(500).json({ error: "Échec lors de la récupération de la catégorie", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la récupération de la catégorie", details: error.message });
   } finally {
     await connection.end();
   }
@@ -87,11 +87,11 @@ app.post("/categories", async (req, res) => {
 
     await connection.commit();
 
-    res.status(201).json({ message: "Catégorie ajoutée", result: result[0] });
+    return res.status(201).json({ message: "Catégorie ajoutée", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de l'ajout de la catégorie: ", error);
-    res.status(500).json({ error: "Échec de l'ajout de la catégorie", details: error.message });
+    return res.status(500).json({ error: "Échec de l'ajout de la catégorie", details: error.message });
   } finally {
     await connection.end();
   }
@@ -125,11 +125,11 @@ app.put("/categories/:id", async (req, res) => {
 
     await connection.commit();
 
-    res.status(200).json({ message: "Catégorie mise à jour", result: result[0] });
+    return res.status(200).json({ message: "Catégorie mise à jour", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la mise à jour de la catégorie: ", error);
-    res.status(500).json({ error: "Échec de la mise à jour de la catégorie", details: error.message });
+    return res.status(500).json({ error: "Échec de la mise à jour de la catégorie", details: error.message });
   } finally {
     await connection.end();
   }
@@ -154,11 +154,11 @@ app.delete("/categories/:id", async (req, res) => {
     await connection.execute("DELETE FROM categories WHERE id = ?", [id]);
 
     await connection.commit();
-    res.status(200).send("Catégorie supprimée");
+    return res.status(200).send("Catégorie supprimée");
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la suppression de la catégorie: ", error);
-    res.status(500).json({ error: "Échec de la suppression de la catégorie", details: error.message });
+    return res.status(500).json({ error: "Échec de la suppression de la catégorie", details: error.message });
   } finally {
     await connection.end();
   }
@@ -386,10 +386,10 @@ app.get("/fournisseurs", async (req, res) => {
     // Récupérer tous les fournisseurs
     const [result] = await connection.execute("SELECT * FROM fournisseurs");
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Erreur lors de la récupération des fournisseurs: ", error);
-    res.status(500).json({ error: "Échec lors de la récupération des fournisseurs", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la récupération des fournisseurs", details: error.message });
   } finally {
     await connection.end();
   }
@@ -399,18 +399,19 @@ app.get("/fournisseurs", async (req, res) => {
 app.get("/fournisseurs/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
+
   try {
     // Récupérer le fournisseur
     const [result] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id]);
 
     if (!result.length) {
-      res.status(404).json({ error: "Fournisseur non trouvé" });
+      return res.status(404).json({ error: "Fournisseur non trouvé" });
     }
 
-    res.status(200).json(result[0]);
+    return res.status(200).json(result[0]);
   } catch (error) {
     console.error("Erreur lors de la récupération du fournisseur: ", error);
-    res.status(500).json({ error: "Échec lors de la récupération du fournisseur", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la récupération du fournisseur", details: error.message });
   } finally {
     await connection.end();
   }
@@ -420,12 +421,13 @@ app.get("/fournisseurs/:id", async (req, res) => {
 app.post("/fournisseurs", async (req, res) => {
   const connection = await dbConnection();
   const { nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
+
   try {
     // Vérifier si les champs obligatoires sont renseignés
     const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -442,11 +444,11 @@ app.post("/fournisseurs", async (req, res) => {
 
     await connection.commit();
 
-    res.status(201).json({ message: "Fournisseur ajouté", result: result[0] });
+    return res.status(201).json({ message: "Fournisseur ajouté", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de l'ajout du fournisseur: ", error);
-    res.status(500).json({ error: "Échec lors de l'ajout du fournisseur", details: error.message });
+    return res.status(500).json({ error: "Échec lors de l'ajout du fournisseur", details: error.message });
   } finally {
     await connection.end();
   }
@@ -463,7 +465,7 @@ app.put("/fournisseurs/:id", async (req, res) => {
     const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -471,7 +473,7 @@ app.put("/fournisseurs/:id", async (req, res) => {
     const [fournisseur] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id]);
 
     if (!fournisseur.length) {
-      res.status(404).json({ error: "Fournisseur non trouvé" });
+      return res.status(404).json({ error: "Fournisseur non trouvé" });
     }
 
     await connection.beginTransaction();
@@ -487,11 +489,11 @@ app.put("/fournisseurs/:id", async (req, res) => {
 
     await connection.commit();
 
-    res.status(200).json({ message: "Fournisseur mis à jour", result: result[0] });
+    return res.status(200).json({ message: "Fournisseur mis à jour", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la mise à jour du fournisseur: ", error);
-    res.status(500).json({ error: "Échec lors de la mise à jour du fournisseur", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la mise à jour du fournisseur", details: error.message });
   } finally {
     await connection.end();
   }
@@ -516,11 +518,11 @@ app.delete("/fournisseurs/:id", async (req, res) => {
 
     await connection.commit();
 
-    res.status(200).json({ message: "Fournisseur supprimé" });
+    return res.status(200).json({ message: "Fournisseur supprimé" });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la suppression du fournisseur: ", error);
-    res.status(500).json({ error: "Échec lors de la suppression du fournisseur", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la suppression du fournisseur", details: error.message });
   } finally {
     await connection.end();
   }
@@ -535,10 +537,10 @@ app.get("/clients", async (req, res) => {
     // Récupérer tous les clients
     const [result] = await connection.execute("SELECT * FROM clients");
 
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
     console.error("Erreur lors de la récupération des clients: ", error);
-    res.status(500).json({ error: "Échec lors de la récupération des clients", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la récupération des clients", details: error.message });
   } finally {
     await connection.end();
   }
@@ -554,13 +556,13 @@ app.get("/clients/:id", async (req, res) => {
     const [result] = await connection.execute("SELECT * FROM clients WHERE id = ?", [id]);
 
     if (!result.length) {
-      res.status(404).json({ error: "Client non trouvé" });
+      return res.status(404).json({ error: "Client non trouvé" });
     }
 
-    res.status(200).json(result[0]);
+    return res.status(200).json(result[0]);
   } catch (error) {
     console.error("Erreur lors de la récupération du client: ", error);
-    res.status(500).json({ error: "Échec lors de la récupération du client", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la récupération du client", details: error.message });
   } finally {
     await connection.end();
   }
@@ -585,7 +587,7 @@ app.post("/clients", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -602,11 +604,11 @@ app.post("/clients", async (req, res) => {
 
     await connection.commit();
 
-    res.status(201).json({ message: "Client ajouté", result: result[0] });
+    return res.status(201).json({ message: "Client ajouté", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de l'ajout du client: ", error);
-    res.status(500).json({ error: "Échec lors de l'ajout du client", details: error.message });
+    return res.status(500).json({ error: "Échec lors de l'ajout du client", details: error.message });
   } finally {
     await connection.end();
   }
@@ -617,6 +619,7 @@ app.put("/clients/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
   const { nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
+
   try {
     // Vérifier si les champs obligatoires sont renseignés
     const requiredFields = [
@@ -631,7 +634,7 @@ app.put("/clients/:id", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(404).json({ error: `Le champ '${field}' est requis` });
+        return res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -639,7 +642,7 @@ app.put("/clients/:id", async (req, res) => {
     const [client] = await connection.execute("SELECT * FROM clients WHERE id = ?", [id]);
 
     if (!client.length) {
-      res.status(404).json({ error: "Client non trouvé" });
+      return res.status(404).json({ error: "Client non trouvé" });
     }
 
     await connection.beginTransaction();
@@ -655,11 +658,11 @@ app.put("/clients/:id", async (req, res) => {
 
     await connection.commit();
 
-    res.status(200).json({ message: "Client mis à jour", result: result[0] });
+    return res.status(200).json({ message: "Client mis à jour", result: result[0] });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la mise à jour du client: ", error);
-    res.status(500).json({ error: "Échec lors de la mise à jour du client", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la mise à jour du client", details: error.message });
   } finally {
     await connection.end();
   }
@@ -685,11 +688,11 @@ app.delete("/clients/:id", async (req, res) => {
 
     await connection.commit();
 
-    res.status(200).json({ message: "Client supprimé" });
+    return res.status(200).json({ message: "Client supprimé" });
   } catch (error) {
     await connection.rollback();
     console.error("Erreur lors de la suppression du client: ", error);
-    res.status(500).json({ error: "Échec lors de la suppression du client", details: error.message });
+    return res.status(500).json({ error: "Échec lors de la suppression du client", details: error.message });
   } finally {
     await connection.end();
   }
