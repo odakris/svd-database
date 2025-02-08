@@ -1,5 +1,6 @@
 const dbConnection = require("../db/dbConnection");
 
+// Récupérer toutes les catégories
 const getAllCategories = async (req, res) => {
   const connection = await dbConnection();
 
@@ -16,6 +17,7 @@ const getAllCategories = async (req, res) => {
   }
 };
 
+// Récupérer une catégorie par son ID
 const getCategoryById = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -43,6 +45,7 @@ const getCategoryById = async (req, res) => {
   }
 };
 
+// Ajouter une catégorie
 const createCategory = async (req, res) => {
   const connection = await dbConnection();
   const { nom } = req.body;
@@ -77,6 +80,7 @@ const createCategory = async (req, res) => {
   }
 };
 
+// Mettre à jour une catégorie
 const updateCategory = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -123,6 +127,7 @@ const updateCategory = async (req, res) => {
   }
 };
 
+// Supprimer une catégorie
 const deleteCategory = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;

@@ -1,5 +1,6 @@
 const dbConnection = require("../db/dbConnection");
 
+// Récupérer tous les clients
 const getAllClients = async (req, res) => {
   const connection = await dbConnection();
 
@@ -16,6 +17,7 @@ const getAllClients = async (req, res) => {
   }
 };
 
+// Récupérer un client par son ID
 const getClientById = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -42,6 +44,7 @@ const getClientById = async (req, res) => {
   }
 };
 
+// Ajouter un client
 const createClient = async (req, res) => {
   const connection = await dbConnection();
   const { nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
@@ -91,6 +94,7 @@ const createClient = async (req, res) => {
   }
 };
 
+// Mettre à jour un client
 const updateClient = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -153,6 +157,7 @@ const updateClient = async (req, res) => {
   }
 };
 
+// Supprimer un client
 const deleteClient = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;

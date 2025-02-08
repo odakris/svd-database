@@ -8,7 +8,7 @@ const suppliersRoutes = require("./routes/suppliersRoutes");
 const clientsRoutes = require("./routes/clientsRoutes");
 const commandsRoutes = require("./routes/commandsRoutes");
 
-// Enregistrer les routes
+// Routes
 app.use("/categories", categoriesRoutes);
 app.use("/produits", productsRoutes);
 app.use("/fournisseurs", suppliersRoutes);

@@ -1,5 +1,6 @@
 const dbConnection = require("../db/dbConnection");
 
+// Récupérer tous les produits
 const getAllProducts = async (req, res) => {
   const connection = await dbConnection();
 
@@ -16,6 +17,7 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+// Récupérer un produit par son ID
 const getProductById = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -42,6 +44,7 @@ const getProductById = async (req, res) => {
   }
 };
 
+// Ajouter un produit
 const createProduct = async (req, res) => {
   const connection = await dbConnection();
   const { reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur } = req.body;
@@ -113,6 +116,7 @@ const createProduct = async (req, res) => {
   }
 };
 
+// Mettre à jour un produit
 const updateProduct = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -196,6 +200,7 @@ const updateProduct = async (req, res) => {
   }
 };
 
+// Supprimer un produit
 const deleteProduct = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;

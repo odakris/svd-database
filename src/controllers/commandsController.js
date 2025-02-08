@@ -1,5 +1,6 @@
 const dbConnection = require("../db/dbConnection");
 
+// Récupérer toutes les commandes
 const getAllCommands = async (req, res) => {
   const connection = await dbConnection();
   const result = [];
@@ -28,6 +29,7 @@ const getAllCommands = async (req, res) => {
   }
 };
 
+// Récupérer une commande par son ID
 const getCommandById = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -60,6 +62,7 @@ const getCommandById = async (req, res) => {
   }
 };
 
+// Ajouter une commande
 const createCommand = async (req, res) => {
   const connection = await dbConnection();
   const { date_commande, id_client, lignes_commandes } = req.body;
@@ -176,6 +179,7 @@ const createCommand = async (req, res) => {
   }
 };
 
+// Mettre à jour une commande
 const updateCommand = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -308,6 +312,7 @@ const updateCommand = async (req, res) => {
   }
 };
 
+// Supprimer une commande
 const deleteCommand = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;

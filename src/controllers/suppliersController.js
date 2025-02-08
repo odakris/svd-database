@@ -1,5 +1,6 @@
 const dbConnection = require("../db/dbConnection");
 
+// Récupérer tous les fournisseurs
 const getAllSuppliers = async (req, res) => {
   const connection = await dbConnection();
 
@@ -16,6 +17,7 @@ const getAllSuppliers = async (req, res) => {
   }
 };
 
+// Récupérer un fournisseur par son ID
 const getSupplierById = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -42,6 +44,7 @@ const getSupplierById = async (req, res) => {
   }
 };
 
+// Ajouter un fournisseur
 const createSupplier = async (req, res) => {
   const connection = await dbConnection();
   const { nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
@@ -82,6 +85,7 @@ const createSupplier = async (req, res) => {
   }
 };
 
+// Mettre à jour un fournisseur
 const updateSupplier = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
@@ -135,6 +139,7 @@ const updateSupplier = async (req, res) => {
   }
 };
 
+// Supprimer un fournisseur
 const deleteSupplier = async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
