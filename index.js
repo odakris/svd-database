@@ -94,7 +94,11 @@ app.post("/categories", async (req, res) => {
 
     return res.status(201).json({ message: "Catégorie ajoutée", result: result[0] });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de l'ajout de la catégorie: ", error);
     return res.status(500).json({ error: "Échec de l'ajout de la catégorie", details: error.message });
   } finally {
@@ -137,7 +141,11 @@ app.put("/categories/:id", async (req, res) => {
 
     return res.status(200).json({ message: "Catégorie mise à jour", result: result[0] });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la mise à jour de la catégorie: ", error);
     return res.status(500).json({ error: "Échec de la mise à jour de la catégorie", details: error.message });
   } finally {
@@ -171,7 +179,11 @@ app.delete("/categories/:id", async (req, res) => {
     await connection.commit();
     return res.status(200).send("Catégorie supprimée");
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la suppression de la catégorie: ", error);
     return res.status(500).json({ error: "Échec de la suppression de la catégorie", details: error.message });
   } finally {
@@ -284,7 +296,11 @@ app.post("/produits", async (req, res) => {
 
     return res.status(201).json({ message: "Produit ajouté", result: result[0] });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de l'ajout du produit: ", error);
     return res.status(500).json({ error: "Échec lors de l'ajout du produit", details: error.message });
   } finally {
@@ -364,7 +380,11 @@ app.put("/produits/:id", async (req, res) => {
 
     return res.status(200).json({ message: "Produit mis à jour", result: result[0] });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la mise à jour du produit: ", error);
     return res.status(500).json({ error: "Échec lors de la mise à jour du produit", details: error.message });
   } finally {
@@ -399,7 +419,11 @@ app.delete("/produits/:id", async (req, res) => {
 
     return res.status(200).json({ message: "Produit supprimé" });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la suppression du produit: ", error);
     return res.status(500).json({ error: "Échec lors de la suppression du produit", details: error.message });
   } finally {
@@ -481,7 +505,11 @@ app.post("/fournisseurs", async (req, res) => {
 
     return res.status(201).json({ message: "Fournisseur ajouté", result: result[0] });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de l'ajout du fournisseur: ", error);
     return res.status(500).json({ error: "Échec lors de l'ajout du fournisseur", details: error.message });
   } finally {
@@ -531,7 +559,11 @@ app.put("/fournisseurs/:id", async (req, res) => {
 
     return res.status(200).json({ message: "Fournisseur mis à jour", result: result[0] });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la mise à jour du fournisseur: ", error);
     return res.status(500).json({ error: "Échec lors de la mise à jour du fournisseur", details: error.message });
   } finally {
@@ -565,7 +597,11 @@ app.delete("/fournisseurs/:id", async (req, res) => {
 
     return res.status(200).json({ message: "Fournisseur supprimé" });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la suppression du fournisseur: ", error);
     return res.status(500).json({ error: "Échec lors de la suppression du fournisseur", details: error.message });
   } finally {
@@ -656,7 +692,11 @@ app.post("/clients", async (req, res) => {
 
     return res.status(201).json({ message: "Client ajouté", result: result[0] });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de l'ajout du client: ", error);
     return res.status(500).json({ error: "Échec lors de l'ajout du client", details: error.message });
   } finally {
@@ -715,7 +755,11 @@ app.put("/clients/:id", async (req, res) => {
 
     return res.status(200).json({ message: "Client mis à jour", result: result[0] });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la mise à jour du client: ", error);
     return res.status(500).json({ error: "Échec lors de la mise à jour du client", details: error.message });
   } finally {
@@ -750,7 +794,11 @@ app.delete("/clients/:id", async (req, res) => {
 
     return res.status(200).json({ message: "Client supprimé" });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la suppression du client: ", error);
     return res.status(500).json({ error: "Échec lors de la suppression du client", details: error.message });
   } finally {
@@ -871,12 +919,20 @@ app.post("/commandes", async (req, res) => {
       const [produit] = await connection.execute("SELECT * FROM produits WHERE id = ?", [ligne.id_produit]);
       // Vérifier si le produit existe
       if (!produit.length) {
-        await connection.rollback();
+        try {
+          await connection.rollback();
+        } catch (rollbackError) {
+          console.error("Erreur lors du rollback: ", rollbackError);
+        }
         return res.status(404).json({ error: "Produit non trouvé" });
       }
       // Vérifier si la quantité de produit est suffisante
       else if (produit[0].quantite_stock < ligne.quantite) {
-        await connection.rollback();
+        try {
+          await connection.rollback();
+        } catch (rollbackError) {
+          console.error("Erreur lors du rollback: ", rollbackError);
+        }
         return res.status(400).json({
           error: `Quantité de produit '${produit[0].reference} - ${produit[0].nom}' insuffisante`,
           message: `Quantité en stock: ${produit[0].quantite_stock}`,
@@ -885,7 +941,11 @@ app.post("/commandes", async (req, res) => {
 
       // Vérifier si la quantité est supérieurs à 0
       if (ligne.quantite <= 0) {
-        await connection.rollback();
+        try {
+          await connection.rollback();
+        } catch (rollbackError) {
+          console.error("Erreur lors du rollback: ", rollbackError);
+        }
         return res.status(400).json({
           error: "La quantité de produit doit être supérieure à 0",
         });
@@ -914,7 +974,11 @@ app.post("/commandes", async (req, res) => {
       .status(201)
       .json({ message: "Commande ajoutée", commande: resultCommande[0], lignes_commande: resultLignesCommande });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de l'ajout de la commande: ", error);
     return res.status(500).json({ error: "Échec lors de l'ajout de la commande", details: error.message });
   } finally {
@@ -988,12 +1052,20 @@ app.put("/commandes/:id", async (req, res) => {
       const [produit] = await connection.execute("SELECT * FROM produits WHERE id = ?", [ligne.id_produit]);
       // Vérifier si le produit existe
       if (!produit.length) {
-        await connection.rollback();
+        try {
+          await connection.rollback();
+        } catch (rollbackError) {
+          console.error("Erreur lors du rollback: ", rollbackError);
+        }
         return res.status(404).json({ error: "Produit non trouvé" });
       }
       // Vérifier si la quantité de produit est suffisante
       else if (produit[0].quantite_stock < ligne.quantite) {
-        await connection.rollback();
+        try {
+          await connection.rollback();
+        } catch (rollbackError) {
+          console.error("Erreur lors du rollback: ", rollbackError);
+        }
         return res.status(400).json({
           error: `Quantité de produit '${produit[0].reference} - ${produit[0].nom}' insuffisante`,
           message: `Quantité en stock: ${produit[0].quantite_stock}`,
@@ -1002,7 +1074,11 @@ app.put("/commandes/:id", async (req, res) => {
 
       // Vérifier si la quantité est supérieurs à 0
       if (ligne.quantite <= 0) {
-        await connection.rollback();
+        try {
+          await connection.rollback();
+        } catch (rollbackError) {
+          console.error("Erreur lors du rollback: ", rollbackError);
+        }
         return res.status(400).json({
           error: "La quantité de produit doit être supérieure à 0",
         });
@@ -1031,7 +1107,11 @@ app.put("/commandes/:id", async (req, res) => {
       .status(201)
       .json({ message: "Commande mise à jour", commande: resultCommande[0], lignes_commande: resultLignesCommande });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la mise à jour de la commande: ", error);
     return res.status(500).json({ error: "Échec lors de la mise à jour de la commande", details: error.message });
   } finally {
@@ -1068,7 +1148,11 @@ app.delete("/commandes/:id", async (req, res) => {
 
     return res.status(200).json({ message: "Commande supprimée ainsi que les lignes de commande associées" });
   } catch (error) {
-    await connection.rollback();
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("Erreur lors du rollback: ", rollbackError);
+    }
     console.error("Erreur lors de la suppression de la commande: ", error);
     return res.status(500).json({ error: "Échec lors de la suppression de la commande", details: error.message });
   } finally {
