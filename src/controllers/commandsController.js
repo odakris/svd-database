@@ -4,44 +4,67 @@ const dbConnection = require("../db/dbConnection");
 const getAllCommands = async (req, res) => {
   const connection = await dbConnection();
   const { start, end } = req.query;
-  const result = [];
+  const queryParams = [];
 
-  try {
-    let commandes = [];
-    if (start && end) {
-      // Vérifier si les dates de début et de fin sont au bon format
-      if (!Date.parse(start) || !Date.parse(end)) {
-        return res
-          .status(400)
-          .json({ error: "Le format des dates de début et de fin est invalide", message: "Format: YYYY-DD-MM" });
-      }
+  let query = `
+    SELECT 
+      c.id, 
+      c.date_commande, 
+      c.id_client, 
+      lc.id AS ligne_id, 
+      lc.id_produit, 
+      lc.quantite, 
+      lc.prix_unitaire,
+      lc.total_ligne
+    FROM commandes c
+    JOIN lignes_commandes lc ON c.id = lc.id_commande`;
 
-      // Récupérer les commandes entre les dates de début et de fin
-      [commandes] = await connection.execute("SELECT * FROM commandes WHERE date_commande BETWEEN ? AND ?", [
-        start,
-        end,
-      ]);
-    } else {
-      // Récupérer toutes les commandes
-      [commandes] = await connection.execute("SELECT * FROM commandes");
+  // Vérifier si les dates de début et de fin sont renseignées
+  if (start && end) {
+    // Vérifier si les dates de début et de fin sont au bon format
+    if (!Date.parse(start) || !Date.parse(end)) {
+      return res
+        .status(400)
+        .json({ error: "Le format des dates de début et de fin est invalide", message: "Format: YYYY-DD-MM" });
     }
 
-    if (!commandes.length) {
+    query += " WHERE c.date_commande BETWEEN ? AND ?";
+    queryParams.push(start, end);
+  }
+
+  try {
+    // Récupérer les commandes
+    const [rows] = await connection.execute(query, queryParams);
+
+    if (!rows.length) {
       return res.status(404).json({ error: "Aucune commande trouvée" });
     }
 
-    // Récupérer les lignes de commande pour chaque commande
-    for (const commande of commandes) {
-      const [lignes_commande] = await connection.execute("SELECT * FROM lignes_commandes WHERE id_commande = ?", [
-        commande.id,
-      ]);
-      // Formater la date de commande
-      commande.date_commande = new Date(commande.date_commande).toISOString().split("T")[0];
-      // Ajouter la commande et ses lignes de commande au résultat
-      result.push({ commande, lignes_commande });
-    }
+    // Regrouper les commandes par ID
+    const commandes = {};
+    rows.forEach((row) => {
+      // Si la commande n'existe pas, l'ajouter
+      if (!commandes[row.id]) {
+        commandes[row.id] = {
+          id: row.id,
+          date_commande: new Date(row.date_commande).toISOString().split("T")[0],
+          id_client: row.id_client,
+          lignes_commandes: [],
+        };
+      }
+      // Ajouter la ligne de commande à la commande
+      if (row.ligne_id) {
+        commandes[row.id].lignes_commandes.push({
+          id: row.ligne_id,
+          id_produit: row.id_produit,
+          quantite: row.quantite,
+          prix_unitaire: row.prix_unitaire,
+          total_ligne: row.total_ligne,
+        });
+      }
+    });
 
-    res.status(200).json(result);
+    return res.status(200).json(Object.values(commandes));
   } catch (error) {
     console.error("Erreur lors de la récupération des commandes: ", error);
     return res.status(500).json({ error: "Échec lors de la récupération des commandes", details: error.message });
