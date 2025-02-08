@@ -10,6 +10,7 @@ const dbConfig = {
   user: "root",
   password: "root",
   database: "avion_papier",
+  timezone: "Z", // Forces Node.js to use UTC!
 };
 
 // Connection à la base de données
@@ -73,7 +74,7 @@ app.post("/categories", async (req, res) => {
   try {
     // Vérifier si le champ 'nom' est renseigné
     if (!nom) {
-      return res.status(400).json({ error: "le champ 'nom' est requis" });
+      return res.status(404).json({ error: "le champ 'nom' est requis" });
     }
 
     await connection.beginTransaction();
@@ -105,7 +106,7 @@ app.put("/categories/:id", async (req, res) => {
   try {
     // Vérifier si le champ 'nom' est renseigné
     if (!nom) {
-      return res.status(400).json({ error: "le champ 'nom' est requis" });
+      return res.status(404).json({ error: "le champ 'nom' est requis" });
     }
 
     // Verifier si la catégorie existe
@@ -221,7 +222,7 @@ app.post("/produits", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -267,7 +268,7 @@ app.put("/produits/:id", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -275,7 +276,7 @@ app.put("/produits/:id", async (req, res) => {
     const [produit] = await connection.execute("SELECT * FROM produits WHERE id = ?", [id]);
 
     if (!produit.length) {
-      res.status(400).json({ error: "Produit non trouvé" });
+      res.status(404).json({ error: "Produit non trouvé" });
     }
 
     await connection.beginTransaction();
@@ -379,7 +380,7 @@ app.post("/fournisseurs", async (req, res) => {
     const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -417,7 +418,7 @@ app.put("/fournisseurs/:id", async (req, res) => {
     const requiredFields = ["nom", "numero_adresse", "rue_adresse", "code_postal", "ville", "telephone", "email"];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -425,7 +426,7 @@ app.put("/fournisseurs/:id", async (req, res) => {
     const [fournisseur] = await connection.execute("SELECT * FROM fournisseurs WHERE id = ?", [id]);
 
     if (!fournisseur.length) {
-      res.status(400).json({ error: "Fournisseur non trouvé" });
+      res.status(404).json({ error: "Fournisseur non trouvé" });
     }
 
     await connection.beginTransaction();
@@ -539,7 +540,7 @@ app.post("/clients", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -585,7 +586,7 @@ app.put("/clients/:id", async (req, res) => {
     ];
     requiredFields.forEach((field) => {
       if (!req.body[field]) {
-        res.status(400).json({ error: `Le champ '${field}' est requis` });
+        res.status(404).json({ error: `Le champ '${field}' est requis` });
       }
     });
 
@@ -653,18 +654,30 @@ app.delete("/clients/:id", async (req, res) => {
 // GET ALL
 app.get("/commandes", async (req, res) => {
   const connection = await dbConnection();
-
-  const [commandes] = await connection.query("SELECT * FROM commandes");
   const result = [];
 
-  for (const commande of commandes) {
-    const [lignes_commandes] = await connection.query(
-      `SELECT * FROM lignes_commandes WHERE id_commande = ${commande.id}`
-    );
-    result.push({ commande, lignes_commandes });
-  }
+  try {
+    // Récupérer toutes les commandes
+    const [commandes] = await connection.execute("SELECT * FROM commandes");
 
-  res.json(result);
+    // Récupérer les lignes de commande pour chaque commande
+    for (const commande of commandes) {
+      const [lignes_commande] = await connection.execute("SELECT * FROM lignes_commandes WHERE id_commande = ?", [
+        commande.id,
+      ]);
+      // Formater la date de commande
+      commande.date_commande = new Date(commande.date_commande).toISOString().split("T")[0];
+      // Ajouter la commande et ses lignes de commande au résultat
+      result.push({ commande, lignes_commande });
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des commandes: ", error);
+    return res.status(500).json({ error: "Échec lors de la récupération des commandes", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // GET ONE
@@ -672,58 +685,272 @@ app.get("/commandes/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
 
-  const [commandes] = await connection.query(`SELECT * FROM commandes WHERE id = ${id}`);
-  const [lignes_commandes] = await connection.query(`SELECT * FROM lignes_commandes WHERE id_commande = ${id}`);
+  try {
+    // Récupérer la commande
+    const [commande] = await connection.execute("SELECT * FROM commandes WHERE id = ?", [id]);
+    // Formater la date de commande
+    commande[0].date_commande = new Date(commande[0].date_commande).toISOString().split("T")[0];
 
-  res.json({ commande: commandes[0], lignes_commandes });
+    // Vérifier si la commande existe
+    if (!commande.length) {
+      return res.status(404).json({ error: "Commande non trouvée" });
+    }
+
+    // Récupérer les lignes de commande pour la commande
+    const [lignes_commande] = await connection.execute("SELECT * FROM lignes_commandes WHERE id_commande = ?", [id]);
+
+    return res.status(200).json({ commande: commande[0], lignes_commande });
+  } catch (error) {
+    console.error("Erreur lors de la récupération de la commande: ", error);
+    return res.status(500).json({ error: "Échec lors de la récupération de la commande", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // POST
 app.post("/commandes", async (req, res) => {
   const connection = await dbConnection();
-  const { date_commande, prix_total, id_client, lignes_commandes } = req.body;
+  const { date_commande, id_client, lignes_commandes } = req.body;
 
-  const [commande] = await connection.query(
-    `INSERT INTO commandes (date_commande, prix_total, id_client) VALUES ('${date_commande}', ${prix_total}, ${id_client})`
-  );
+  try {
+    // Vérifier si les champs obligatoires sont renseignés pour la commande
+    const requiredFields = ["date_commande", "id_client", "lignes_commandes"];
+    requiredFields.forEach((field) => {
+      if (!req.body[field]) {
+        return res.status(404).json({ error: `Le champ '${field}' est requis pour la commande` });
+      }
+    });
 
-  const id_commande = commande.insertId;
+    // Vérifier si les champs obligatoires sont renseignés pour les lignes de commande
+    const lignesCommandesRequiredFields = ["id_produit", "quantite"];
+    lignesCommandesRequiredFields.forEach((field) => {
+      lignes_commandes.forEach((ligne) => {
+        if (!ligne[field]) {
+          return res.status(404).json({ error: `Le champ '${field}' est requis pour les lignes commandes` });
+        }
+      });
+    });
 
-  for (const ligne of lignes_commandes) {
-    await connection.query(
-      `INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire, total_ligne) VALUES (${id_commande}, ${ligne.id_produit}, ${ligne.quantite}, ${ligne.prix_unitaire}, ${ligne.total_ligne})`
-    );
+    // Vérifier si la date de commande est au bon format
+    if (!Date.parse(date_commande)) {
+      return res
+        .status(404)
+        .json({ error: "Le format de la date de commande est invalide", message: "Format: YYYY-DD-MM" });
+    }
+
+    // Vérifier si le client existe
+    const [client] = await connection.execute("SELECT * FROM clients WHERE id = ?", [id_client]);
+    if (!client.length) {
+      return res.status(404).json({ error: "Client non trouvé" });
+    }
+
+    await connection.beginTransaction();
+
+    // Ajouter la commande
+    const [commande] = await connection.execute("INSERT INTO commandes (date_commande, id_client) VALUES (?, ?)", [
+      date_commande,
+      id_client,
+    ]);
+
+    // Ajouter les lignes commande
+    for (const ligne of lignes_commandes) {
+      const [produit] = await connection.execute("SELECT * FROM produits WHERE id = ?", [ligne.id_produit]);
+      // Vérifier si le produit existe
+      if (!produit.length) {
+        await connection.rollback();
+        return res.status(404).json({ error: "Produit non trouvé" });
+      }
+      // Vérifier si la quantité de produit est suffisante
+      else if (produit[0].quantite_stock < ligne.quantite) {
+        await connection.rollback();
+        return res.status(404).json({
+          error: `Quantité de produit '${produit[0].reference} - ${produit[0].nom}' insuffisante`,
+          message: `Quantité en stock: ${produit[0].quantite_stock}`,
+        });
+      }
+
+      // Vérifier si la quantité est supérieurs à 0
+      if (ligne.quantite <= 0) {
+        await connection.rollback();
+        return res.status(404).json({
+          error: "La quantité de produit doit être supérieure à 0",
+        });
+      }
+
+      // Ajouter la ligne de commande
+      await connection.execute(
+        "INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire) VALUES (?,?,?,?)",
+        [commande.insertId, ligne.id_produit, ligne.quantite, produit[0].prix_unitaire]
+      );
+    }
+
+    await connection.commit();
+
+    // Récupérer la commande ajoutée
+    const [resultCommande] = await connection.execute("SELECT * FROM commandes WHERE id = ?", [commande.insertId]);
+    // Formater la date de commande
+    resultCommande[0].date_commande = new Date(resultCommande[0].date_commande).toISOString().split("T")[0];
+
+    // Récupérer les lignes de commande ajoutées
+    const [resultLignesCommande] = await connection.execute("SELECT * FROM lignes_commandes WHERE id_commande = ?", [
+      commande.insertId,
+    ]);
+
+    return res
+      .status(201)
+      .json({ message: "Commande ajoutée", commande: resultCommande[0], lignes_commande: resultLignesCommande });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de l'ajout de la commande: ", error);
+    return res.status(500).json({ error: "Échec lors de l'ajout de la commande", details: error.message });
+  } finally {
+    await connection.end();
   }
-  res.send("Commande ajoutée");
 });
 
 // PUT
 app.put("/commandes/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
-  const { date_commande, prix_total, id_client, lignes_commandes } = req.body;
+  const { date_commande, id_client, lignes_commandes } = req.body;
 
-  await connection.query(
-    `UPDATE commandes SET date_commande = '${date_commande}', prix_total = ${prix_total}, id_client = ${id_client} WHERE id = ${id}`
-  );
-  await connection.query(`DELETE FROM lignes_commandes WHERE id_commande = ${id}`);
+  try {
+    // Vérifier si les champs obligatoires sont renseignés pour la commande
+    const requiredFields = ["date_commande", "id_client", "lignes_commandes"];
+    requiredFields.forEach((field) => {
+      if (!req.body[field]) {
+        return res.status(404).json({ error: `Le champ '${field}' est requis pour la commande` });
+      }
+    });
 
-  for (const ligne of lignes_commandes) {
-    await connection.query(
-      `INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire, total_ligne) VALUES (${id}, ${ligne.id_produit}, ${ligne.quantite}, ${ligne.prix_unitaire}, ${ligne.total_ligne})`
-    );
+    // Vérifier si les champs obligatoires sont renseignés pour les lignes de commande
+    const lignesCommandesRequiredFields = ["id_produit", "quantite"];
+    lignes_commandes.forEach((ligne) => {
+      lignesCommandesRequiredFields.forEach((field) => {
+        if (!ligne[field]) {
+          return res.status(404).json({ error: `Le champ '${field}' est requis pour les lignes commandes` });
+        }
+      });
+    });
+
+    // Vérifier si la date de commande est au bon format
+    if (!Date.parse(date_commande)) {
+      return res
+        .status(404)
+        .json({ error: "Le format de la date de commande est invalide", message: "Format: YYYY-DD-MM" });
+    }
+
+    // Vérifier si la commande existe
+    const [result] = await connection.execute("SELECT * FROM commandes WHERE id = ?", [id]);
+    if (!result.length) {
+      return res.status(404).json({ error: "Commande non trouvée" });
+    }
+
+    // Vérifier si le client existe
+    const [client] = await connection.execute("SELECT * FROM clients WHERE id = ?", [id_client]);
+    if (!client.length) {
+      return res.status(404).json({ error: "Client non trouvé" });
+    }
+
+    await connection.beginTransaction();
+
+    // Mettre à jour la commande
+    await connection.execute("UPDATE commandes SET date_commande = ?, id_client = ? WHERE id = ?", [
+      date_commande,
+      id_client,
+      id,
+    ]);
+
+    // Supprimer les lignes de commande de la commande
+    await connection.execute("DELETE FROM lignes_commandes WHERE id_commande = ?", [id]);
+
+    // Mettre à jour les lignes de commande
+    for (const ligne of lignes_commandes) {
+      const [produit] = await connection.execute("SELECT * FROM produits WHERE id = ?", [ligne.id_produit]);
+      // Vérifier si le produit existe
+      if (!produit.length) {
+        await connection.rollback();
+        return res.status(404).json({ error: "Produit non trouvé" });
+      }
+      // Vérifier si la quantité de produit est suffisante
+      else if (produit[0].quantite_stock < ligne.quantite) {
+        await connection.rollback();
+        return res.status(404).json({
+          error: `Quantité de produit '${produit[0].reference} - ${produit[0].nom}' insuffisante`,
+          message: `Quantité en stock: ${produit[0].quantite_stock}`,
+        });
+      }
+
+      // Vérifier si la quantité est supérieurs à 0
+      if (ligne.quantite <= 0) {
+        await connection.rollback();
+        return res.status(404).json({
+          error: "La quantité de produit doit être supérieure à 0",
+        });
+      }
+
+      // Ajouter la ligne de commande
+      await connection.execute(
+        "INSERT INTO lignes_commandes (id_commande, id_produit, quantite, prix_unitaire) VALUES (?,?,?,?)",
+        [id, ligne.id_produit, ligne.quantite, produit[0].prix_unitaire]
+      );
+    }
+
+    await connection.commit();
+
+    // Récupérer la commande mise à jour
+    const [resultCommande] = await connection.execute("SELECT * FROM commandes WHERE id = ?", [id]);
+    // Formater la date de commande
+    resultCommande[0].date_commande = new Date(resultCommande[0].date_commande).toISOString().split("T")[0];
+
+    // Récupérer les lignes de commande mises à jour
+    const [resultLignesCommande] = await connection.execute("SELECT * FROM lignes_commandes WHERE id_commande = ?", [
+      id,
+    ]);
+
+    return res
+      .status(201)
+      .json({ message: "Commande mise à jour", commande: resultCommande[0], lignes_commande: resultLignesCommande });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de la mise à jour de la commande: ", error);
+    return res.status(500).json({ error: "Échec lors de la mise à jour de la commande", details: error.message });
+  } finally {
+    await connection.end();
   }
-
-  res.send("Commande mise à jour avec ses lignes !");
 });
 
 // DELETE
 app.delete("/commandes/:id", async (req, res) => {
   const connection = await dbConnection();
   const { id } = req.params;
-  await connection.query(`DELETE FROM lignes_commandes WHERE id_commande = ${id}`);
-  await connection.query(`DELETE FROM commandes WHERE id = ${id}`);
-  res.send("Commande et ses lignes supprimées !");
+
+  try {
+    // Vérifier si la commande existe
+    const [commande] = await connection.execute("SELECT * FROM commandes WHERE id = ?", [id]);
+    if (!commande.length) {
+      return res.status(404).json({ error: "Commande non trouvée" });
+    }
+
+    await connection.beginTransaction();
+
+    // Supprimer les lignes de commande de la commande
+    await connection.execute("DELETE FROM lignes_commandes WHERE id_commande = ?", [id]);
+
+    // Supprimer la commande
+    await connection.execute("DELETE FROM commandes WHERE id = ?", [id]);
+
+    await connection.commit();
+
+    return res.status(200).json({ message: "Commande supprimée ainsi que les lignes de commande associées" });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Erreur lors de la suppression de la commande: ", error);
+    return res.status(500).json({ error: "Échec lors de la suppression de la commande", details: error.message });
+  } finally {
+    await connection.end();
+  }
 });
 
 // Démarrage du serveur
