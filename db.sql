@@ -98,3 +98,14 @@ BEGIN
     WHERE id = NEW.id_produit;
 END;
 
+
+-- TRIGGER pour restaurer la quantité en stock d'un produit après une suppression de ligne de commande
+
+CREATE TRIGGER restore_quantite_stock_produit
+AFTER DELETE ON lignes_commandes
+FOR EACH ROW
+BEGIN
+    UPDATE produits
+    SET quantite_stock = quantite_stock + OLD.quantite
+    WHERE id = OLD.id_produit;
+END;
