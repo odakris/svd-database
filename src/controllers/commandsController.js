@@ -3,11 +3,32 @@ const dbConnection = require("../db/dbConnection");
 // Récupérer toutes les commandes
 const getAllCommands = async (req, res) => {
   const connection = await dbConnection();
+  const { start, end } = req.query;
   const result = [];
 
   try {
-    // Récupérer toutes les commandes
-    const [commandes] = await connection.execute("SELECT * FROM commandes");
+    let commandes = [];
+    if (start && end) {
+      // Vérifier si les dates de début et de fin sont au bon format
+      if (!Date.parse(start) || !Date.parse(end)) {
+        return res
+          .status(400)
+          .json({ error: "Le format des dates de début et de fin est invalide", message: "Format: YYYY-DD-MM" });
+      }
+
+      // Récupérer les commandes entre les dates de début et de fin
+      [commandes] = await connection.execute("SELECT * FROM commandes WHERE date_commande BETWEEN ? AND ?", [
+        start,
+        end,
+      ]);
+    } else {
+      // Récupérer toutes les commandes
+      [commandes] = await connection.execute("SELECT * FROM commandes");
+    }
+
+    if (!commandes.length) {
+      return res.status(404).json({ error: "Aucune commande trouvée" });
+    }
 
     // Récupérer les lignes de commande pour chaque commande
     for (const commande of commandes) {
