@@ -1,3 +1,4 @@
+const { query } = require("express");
 const dbConnection = require("../db/dbConnection");
 const { getCommands } = require("../utils/getCommands");
 
@@ -73,6 +74,41 @@ const getCommandsByProductId = async (req, res) => {
     return res
       .status(500)
       .json({ error: "Échec lors de la récupération des commandes par produit", details: error.message });
+  } finally {
+    await connection.end();
+  }
+};
+
+// Récupérer les produits avec un stock faible
+const getLowStockProducts = async (req, res) => {
+  const connection = await dbConnection();
+  const { seuil } = req.query;
+  let seuilValue = 10;
+
+  if (seuil) {
+    // Vérifier si le seuil est un nombre
+    if (seuil <= 0 || isNaN(seuil)) {
+      return res.status(400).json({ error: "Le seuil doit être un nombre valide" });
+    }
+    seuilValue = parseInt(seuil);
+  }
+
+  try {
+    // Récupérer les produits avec un stock faible
+    const [result] = await connection.execute(
+      `SELECT reference, nom, description_produit, quantite_stock FROM produits WHERE quantite_stock < ? ORDER BY quantite_stock ASC`,
+      [seuilValue]
+    );
+
+    // Si aucun produit n'est trouvé
+    if (!result.length) {
+      return res.status(404).json({ message: `Aucun produit avec un stock inférieur à ${seuilValue}` });
+    }
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des produits: ", error);
+    return res.status(500).json({ error: "Échec lors de la récupération des produits", details: error.message });
   } finally {
     await connection.end();
   }
@@ -286,6 +322,7 @@ module.exports = {
   getAllProducts,
   getProductById,
   getCommandsByProductId,
+  getLowStockProducts,
   createProduct,
   updateProduct,
   deleteProduct,
