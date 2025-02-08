@@ -1,4 +1,5 @@
 const mysql = require("mysql2/promise");
+const path = require("path");
 const fs = require("fs");
 
 const dbConfig = {
@@ -11,7 +12,7 @@ const dbConfig = {
 const executeSQLFile = async (connection, filePath) => {
   const sql = fs.readFileSync(filePath, "utf8");
   await connection.query(sql);
-  console.log(`${filePath} exécuté avec succès`);
+  console.log(`${path.basename(filePath)} exécuté avec succès`);
 };
 
 const initDB = async () => {
@@ -19,9 +20,15 @@ const initDB = async () => {
     const connection = await mysql.createConnection(dbConfig);
     console.log("Connexion à MySQL réussie");
 
-    await executeSQLFile(connection, "db.sql");
-    await connection.changeUser({ database: "avion_papier" });
-    await executeSQLFile(connection, "data.sql");
+    // await executeSQLFile(connection, "./src/db/db.sql");
+    // await connection.changeUser({ database: "avion_papier" });
+    // await executeSQLFile(connection, "./src/db/data.sql");
+
+    // Exécuter les fichiers SQL pour créer les tables et insérer les données
+    const dbFilePath = path.join(__dirname, "db.sql");
+    const dataFilePath = path.join(__dirname, "data.sql");
+    await executeSQLFile(connection, dbFilePath);
+    await executeSQLFile(connection, dataFilePath);
 
     console.log("Base de données initialisée avec succès");
     return connection;
