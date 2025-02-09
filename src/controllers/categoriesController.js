@@ -151,7 +151,7 @@ const deleteCategory = async (req, res) => {
     await connection.execute("DELETE FROM categories WHERE id = ?", [id]);
 
     await connection.commit();
-    return res.status(200).send("Catégorie supprimée");
+    return res.status(200).json({ message: "Catégorie supprimée" });
   } catch (error) {
     try {
       await connection.rollback();
