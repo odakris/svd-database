@@ -68,7 +68,7 @@ const getAllCommands = async (req, res) => {
     const commands = await getCommands(connection, queryCondition, queryParams);
 
     if (!commands.length) {
-      return res.status(404).json({ error: "Aucune commande trouvée" });
+      return res.status(404).json({ message: "Aucune commande trouvée" });
     }
 
     return res.status(200).json(commands);
