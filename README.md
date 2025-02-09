@@ -55,7 +55,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -76,7 +76,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -88,7 +88,7 @@ git checkout master
 
 #### Exemple de requête POST
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "nom": "NOUVELLE_CATEGORIE"
@@ -97,7 +97,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Catégorie ajoutée",
@@ -112,7 +112,7 @@ git checkout master
 
 #### Exemple de requête PUT
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "nom": "CATEGORIE_MODIF"
@@ -121,7 +121,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Catégorie mise à jour",
@@ -136,7 +136,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Catégorie supprimée"
@@ -149,7 +149,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -188,7 +188,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -206,7 +206,7 @@ git checkout master
 
 #### Exemple de requête POST
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "reference": "ref_produit",
@@ -221,7 +221,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Produit ajouté",
@@ -242,7 +242,7 @@ git checkout master
 
 #### Exemple de requête PUT
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "reference": "NEW_ref_produit",
@@ -257,7 +257,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Produit mis à jour",
@@ -278,7 +278,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Produit supprimé"
@@ -291,7 +291,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -330,7 +330,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -348,7 +348,7 @@ git checkout master
 
 #### Exemple de requête POST
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "nom": "fournisseur",
@@ -363,7 +363,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Fournisseur ajouté",
@@ -384,7 +384,7 @@ git checkout master
 
 #### Exemple de requête PUT
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "nom": "NEW_fournisseur",
@@ -399,7 +399,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Fournisseur mis à jour",
@@ -420,7 +420,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Fournisseur supprimé"
@@ -433,7 +433,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -473,7 +473,7 @@ git checkout master
 
 **GET** `/clients/:id` : Récupère un client par son identifiant.
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -492,7 +492,7 @@ git checkout master
 
 #### Exemple de requête POST
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "nom": "nom_client",
@@ -508,7 +508,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Client ajouté",
@@ -530,7 +530,7 @@ git checkout master
 
 #### Exemple de requête PUT
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "nom": "NEW_nom_client",
@@ -546,7 +546,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Client mis à jour",
@@ -568,7 +568,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Client supprimé"
@@ -581,7 +581,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -656,7 +656,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -686,7 +686,7 @@ git checkout master
 
 #### Exemple de requête POST pour la **VERSION 1**
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "date_commande": "2025-01-02",
@@ -711,7 +711,7 @@ git checkout master
 
 #### Exemple de requête POST pour la **VERSION 2**
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "date_commande": "2025-01-02",
@@ -731,7 +731,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Commande ajoutée",
@@ -766,7 +766,7 @@ git checkout master
 
 #### Exemple de requête PUT pour la **VERSION 1**
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "date_commande": "2025-01-31",
@@ -791,7 +791,7 @@ git checkout master
 
 #### Exemple de requête PUT pour la **VERSION 2**
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "date_commande": "2025-01-31",
@@ -811,7 +811,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Commande mise à jour",
@@ -846,7 +846,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Commande supprimée ainsi que les lignes de commande associées"
@@ -859,7 +859,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -892,7 +892,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "id": 1,
@@ -908,7 +908,7 @@ git checkout master
 
 #### Exemple de requête POST
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "id_produit": 1,
@@ -919,7 +919,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Ligne de commande créée avec succès",
@@ -938,7 +938,7 @@ git checkout master
 
 #### Exemple de requête PUT
 
-```json
+```javascript
 // corps de la requête (json)
 {
   "id_produit": 2,
@@ -949,7 +949,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Ligne de commande mise à jour",
@@ -968,7 +968,7 @@ git checkout master
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "message": "Ligne de commande supprimée"
@@ -986,7 +986,7 @@ En cas d'absence de ces filtres, l'appel retournera simplement toutes les comman
 
 Si aucune commande n'est trouvée, alors un message est retourné.
 
-```json
+```javascript
 {
   "message": "Aucune commande trouvée"
 }
@@ -1022,7 +1022,7 @@ Chacun de ces filtres peut être appliqué individuellement.
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "nom": "Maquette Avion Civil Airbus A320",
@@ -1053,7 +1053,7 @@ Chacun de ces filtres peut être appliqué individuellement.
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "nom": "Durand",
@@ -1078,7 +1078,7 @@ Chacun de ces filtres peut être appliqué individuellement.
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "nom": "Fournisseur B",
@@ -1100,7 +1100,7 @@ Chacun de ces filtres peut être appliqué individuellement.
 
 #### Exemple de réponse JSON
 
-```json
+```javascript
 // réponse (json)
 {
   "total_ventes": "1178.50"
