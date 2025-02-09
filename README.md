@@ -1754,4 +1754,4 @@ Si le problème persiste malgré ces ajustements, merci d’utiliser les profils
 - **ADMIN** → Accès complet sur avion_papier
 - **READONLY** → Accès en lecture seule sur toutes les tables
 
-Cela permettra d'éviter les blocages liés aux permissions ou, si nécessaire, de revenir à l'avant-dernier commit intitulé **`"Last commit on README.md"`**.
+Cela permettra d'éviter les blocages liés aux permissions ou, si nécessaire, de revenir à l'avant-dernier commit intitulé **`"Last commit on README.md"`** (commit n°`79564eb`).
