@@ -1,9 +1,13 @@
+const express = require("express");
 const app = require("./app");
 const { initDB } = require("./db/dbInit");
 
+app.use(express.json());
+
 // Initialisation de la base de données
 app.post("/init", async (req, res) => {
-  await initDB();
+  const role = req.headers["role"];
+  await initDB(role, res);
   return res.send("Base de données initialisée avec succès !");
 });
 

@@ -1,10 +1,15 @@
-const e = require("express");
-const dbConnection = require("../db/dbConnection");
+const { dbConnection } = require("../db/dbConnection");
 const { getCommands } = require("../utils/getCommands");
 
 // Récupérer toutes les commandes
 const getAllCommands = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
+  // if (!connection) {
+  //   return;
+  // }
+
   const { start, end, id_client, id_produit, prix_min, prix_max } = req.query;
   const queryParams = [];
   let queryCondition = "WHERE ";
@@ -82,7 +87,9 @@ const getAllCommands = async (req, res) => {
 
 // Récupérer une commande par son ID
 const getCommandById = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre
@@ -111,7 +118,9 @@ const getCommandById = async (req, res) => {
 
 // Ajouter une commande
 const createCommand = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { date_commande, id_client, lignes_commandes } = req.body;
 
   try {
@@ -221,7 +230,9 @@ const createCommand = async (req, res) => {
 
 // Mettre à jour une commande
 const updateCommand = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
   const { date_commande, id_client, lignes_commandes } = req.body;
 
@@ -348,7 +359,9 @@ const updateCommand = async (req, res) => {
 
 // Supprimer une commande
 const deleteCommand = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre

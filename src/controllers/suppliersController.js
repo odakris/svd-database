@@ -1,8 +1,9 @@
-const dbConnection = require("../db/dbConnection");
+const { dbConnection } = require("../db/dbConnection");
 
 // Récupérer tous les fournisseurs
 const getAllSuppliers = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
 
   try {
     // Récupérer tous les fournisseurs
@@ -19,7 +20,9 @@ const getAllSuppliers = async (req, res) => {
 
 // Récupérer un fournisseur par son ID
 const getSupplierById = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre
@@ -46,7 +49,9 @@ const getSupplierById = async (req, res) => {
 
 // Ajouter un fournisseur
 const createSupplier = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
 
   try {
@@ -87,7 +92,9 @@ const createSupplier = async (req, res) => {
 
 // Mettre à jour un fournisseur
 const updateSupplier = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
   const { nom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
 
@@ -141,7 +148,9 @@ const updateSupplier = async (req, res) => {
 
 // Supprimer un fournisseur
 const deleteSupplier = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre

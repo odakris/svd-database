@@ -1,8 +1,9 @@
-const dbConnection = require("../db/dbConnection");
+const { dbConnection } = require("../db/dbConnection");
 
 // Récupérer toutes les lignes
 const getAllLines = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
 
   try {
     // Récupérer toutes les lignes de commandes
@@ -19,7 +20,9 @@ const getAllLines = async (req, res) => {
 
 // Récupérer une ligne par son id
 const getLineById = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre
@@ -46,7 +49,9 @@ const getLineById = async (req, res) => {
 
 // Créer une ligne
 const createLine = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id_produit, id_commande, quantite } = req.body;
 
   try {
@@ -109,7 +114,9 @@ const createLine = async (req, res) => {
 
 // Mettre à jour une ligne
 const updateLine = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
   const { id_produit, id_commande, quantite } = req.body;
 
@@ -176,7 +183,9 @@ const updateLine = async (req, res) => {
 
 // Supprimer une ligne
 const deleteLine = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre

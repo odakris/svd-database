@@ -1,9 +1,10 @@
-const dbConnection = require("../db/dbConnection");
+const { dbConnection } = require("../db/dbConnection");
 const { getCommands } = require("../utils/getCommands");
 
 // Récupérer tous les clients
 const getAllClients = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
 
   try {
     // Récupérer tous les clients
@@ -20,7 +21,9 @@ const getAllClients = async (req, res) => {
 
 // Récupérer un client par son ID
 const getClientById = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre
@@ -47,7 +50,9 @@ const getClientById = async (req, res) => {
 
 // Récupérer les commandes par ID client
 const getCommandsByClientId = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre
@@ -80,7 +85,9 @@ const getCommandsByClientId = async (req, res) => {
 
 // Ajouter un client
 const createClient = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
 
   try {
@@ -130,7 +137,9 @@ const createClient = async (req, res) => {
 
 // Mettre à jour un client
 const updateClient = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
   const { nom, prenom, numero_adresse, rue_adresse, code_postal, ville, telephone, email } = req.body;
 
@@ -193,7 +202,9 @@ const updateClient = async (req, res) => {
 
 // Supprimer un client
 const deleteClient = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre

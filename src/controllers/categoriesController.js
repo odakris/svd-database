@@ -1,8 +1,9 @@
-const dbConnection = require("../db/dbConnection");
+const { dbConnection } = require("../db/dbConnection");
 
 // Récupérer toutes les catégories
 const getAllCategories = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
 
   try {
     // Récupérer toutes les catégories
@@ -19,7 +20,13 @@ const getAllCategories = async (req, res) => {
 
 // Récupérer une catégorie par son ID
 const getCategoryById = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
+  if (!connection) {
+    return res.status(500).json({ error: "Échec lors de la connection à la base de données" });
+  }
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre
@@ -47,7 +54,9 @@ const getCategoryById = async (req, res) => {
 
 // Ajouter une catégorie
 const createCategory = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { nom } = req.body;
 
   try {
@@ -82,7 +91,9 @@ const createCategory = async (req, res) => {
 
 // Mettre à jour une catégorie
 const updateCategory = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
   const { nom } = req.body;
 
@@ -129,7 +140,9 @@ const updateCategory = async (req, res) => {
 
 // Supprimer une catégorie
 const deleteCategory = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre

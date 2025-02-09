@@ -1,10 +1,10 @@
-const { query } = require("express");
-const dbConnection = require("../db/dbConnection");
+const { dbConnection } = require("../db/dbConnection");
 const { getCommands } = require("../utils/getCommands");
 
 // Récupérer tous les produits
 const getAllProducts = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
 
   try {
     // Récupérer tous les produits
@@ -21,7 +21,9 @@ const getAllProducts = async (req, res) => {
 
 // Récupérer un produit par son ID
 const getProductById = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre
@@ -48,7 +50,9 @@ const getProductById = async (req, res) => {
 
 // Récupérer les commandes par ID produit
 const getCommandsByProductId = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre
@@ -81,7 +85,9 @@ const getCommandsByProductId = async (req, res) => {
 
 // Récupérer les produits avec un stock faible
 const getLowStockProducts = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { seuil } = req.query;
   let seuilValue = 10;
 
@@ -116,7 +122,9 @@ const getLowStockProducts = async (req, res) => {
 
 // Ajouter un produit
 const createProduct = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur } = req.body;
 
   try {
@@ -188,7 +196,9 @@ const createProduct = async (req, res) => {
 
 // Mettre à jour un produit
 const updateProduct = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
   const { reference, nom, description_produit, prix_unitaire, quantite_stock, id_categorie, id_fournisseur } = req.body;
 
@@ -272,7 +282,9 @@ const updateProduct = async (req, res) => {
 
 // Supprimer un produit
 const deleteProduct = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { id } = req.params;
 
   // Vérifier si l'ID est un nombre

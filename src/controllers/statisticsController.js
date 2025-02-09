@@ -1,7 +1,8 @@
-const dbConnection = require("../db/dbConnection");
+const { dbConnection } = require("../db/dbConnection");
 
 const getTopProducts = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
 
   let query = `
   SELECT
@@ -30,7 +31,8 @@ const getTopProducts = async (req, res) => {
 };
 
 const getTopClients = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
 
   let query = `
   SELECT
@@ -62,7 +64,8 @@ const getTopClients = async (req, res) => {
 };
 
 const getTopSuppliers = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
 
   let query = `
   SELECT
@@ -96,7 +99,9 @@ const getTopSuppliers = async (req, res) => {
 };
 
 const getTotalSales = async (req, res) => {
-  const connection = await dbConnection();
+  const role = req.headers["role"];
+  const connection = await dbConnection(role, res);
+
   const { start, end } = req.query;
 
   let query = `
