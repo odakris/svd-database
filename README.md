@@ -55,77 +55,904 @@ git checkout master
 
 </div>
 
-# Documentation et Audit de l'API (Version 1)
+# 1. Présentation de l'API (version 1)
 
-## 1. Présentation de l'API V1
-
-### Initialisation de la Base de Données
+## 1.1 - Initialisation de la Base de Données
 
 <div style="text-align: justify;">
 
-- **POST** `/init` : Initialise la base de données avec les tables et les données de test.
+### **POST** `/init` : Initialise la base de données avec les tables et les données de test.
 
 </div>
 
-### CRUD - Catégories
+## 1.2 - Catégories
 
 <div style="text-align: justify;">
 
-- **GET** `/categories` : Récupère toutes les catégories.
-- **GET** `/categories/:id` : Récupère une catégorie par son identifiant.
-- **POST** `/categories` : Ajoute une nouvelle catégorie.
-- **PUT** `/categories/:id` : Met à jour une catégorie par son identifiant.
-- **DELETE** `/categories/:id` : Supprime une catégorie par son identifiant.
+### **GET** `/categories` : Récupère toutes les catégories.
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "id": 1,
+  "nom": "Maquettes d'avion - Avions militaires"
+},
+{
+  "id": 2,
+  "nom": "Maquettes d'avion - Avions civils"
+},
+{
+  "id": 3,
+  "nom": "Maquettes d'avion - Avions de chasse"
+},
+...
+```
+
+### **GET** `/categories/:id` : Récupère une catégorie par son identifiant.
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "id": 1,
+  "nom": "Maquettes d'avion - Avions militaires"
+}
+```
+
+### **POST** `/categories` : Ajoute une nouvelle catégorie.
+
+#### Exemple de requête POST
+
+```json
+// corps de la requête (json)
+{
+  "nom": "NOUVELLE_CATEGORIE"
+}
+```
+
+#### Exemple de réponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Catégorie ajoutée",
+  "result": {
+    "id": 9,
+    "nom": "NOUVELLE_CATEGORIE"
+  }
+}
+```
+
+### **PUT** `/categories/:id` : Met à jour une catégorie par son identifiant.
+
+#### Exemple de requête PUT
+
+```json
+// corps de la requête (json)
+{
+  "nom": "CATEGORIE_MODIF"
+}
+```
+
+#### Exemple de réponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Catégorie mise à jour",
+  "result": {
+    "id": 9,
+    "nom": "CATEGORIE_MODIF"
+  }
+}
+```
+
+### **DELETE** `/categories/:id` : Supprime une catégorie par son identifiant.
+
+#### Exemple de réponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Catégorie supprimée"
+}
+```
+
+## 1.3 - Produits
+
+<div style="text-align: justify;">
+
+### **GET** `/produits` : Récupère tous les produits.
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+    "id": 1,
+    "reference": "A001",
+    "nom": "Maquette Avion Militaire F-16",
+    "description_produit": "Maquette avion en papier, echelle 1:72, modele F-16 Fighting Falcon",
+    "prix_unitaire": "15.00",
+    "quantite_stock": 35,
+    "id_categorie": 1,
+    "id_fournisseur": 1
+},
+{
+    "id": 2,
+    "reference": "A002",
+    "nom": "Maquette Avion Civil Airbus A320",
+    "description_produit": "Maquette avion en papier, echelle 1:100, modele Airbus A320",
+    "prix_unitaire": "18.50",
+    "quantite_stock": 10,
+    "id_categorie": 2,
+    "id_fournisseur": 2
+},
+{
+    "id": 3,
+    "reference": "A003",
+    "nom": "Maquette Avion Militaire Spitfire",
+    "description_produit": "Maquette avion en papier, echelle 1:72, modele Spitfire",
+    "prix_unitaire": "17.00",
+    "quantite_stock": 19,
+    "id_categorie": 1,
+    "id_fournisseur": 1
+},
+...
+```
+
+### **GET** `/produits/:id` : Récupère un produit par son identifiant.
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "id": 1,
+  "reference": "A001",
+  "nom": "Maquette Avion Militaire F-16",
+  "description_produit": "Maquette avion en papier, echelle 1:72, modele F-16 Fighting Falcon",
+  "prix_unitaire": "15.00",
+  "quantite_stock": 35,
+  "id_categorie": 1,
+  "id_fournisseur": 1
+}
+```
+
+### **POST** `/produits` : Ajoute un nouveau produit.
+
+#### Exemple de requête POST
+
+```json
+// corps de la requête (json)
+{
+  "reference": "ref_produit",
+  "nom": "nom_produit",
+  "description_produit": "desc_produit",
+  "prix_unitaire": 1000,
+  "quantite_stock": 20,
+  "id_categorie": 2,
+  "id_fournisseur": 3
+}
+```
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Produit ajouté",
+  "result": {
+    "id": 14,
+    "reference": "ref_produit",
+    "nom": "nom_produit",
+    "description_produit": "desc_produit",
+    "prix_unitaire": "1000.00",
+    "quantite_stock": 20,
+    "id_categorie": 2,
+    "id_fournisseur": 3
+  }
+}
+```
+
+### **PUT** `/produits/:id` : Met à jour un produit par son identifiant.
+
+#### Exemple de requête POST
+
+```json
+// corps de la requête (json)
+{
+  "reference": "NEW_ref_produit",
+  "nom": "NEW_nom_produit",
+  "description_produit": "NEW_desc_produit",
+  "prix_unitaire": 99,
+  "quantite_stock": 55,
+  "id_categorie": 1,
+  "id_fournisseur": 5
+}
+```
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Produit mis à jour",
+  "result": {
+    "id": 14,
+    "reference": "NEW_ref_produit",
+    "nom": "NEW_nom_produit",
+    "description_produit": "NEW_desc_produit",
+    "prix_unitaire": "99.00",
+    "quantite_stock": 55,
+    "id_categorie": 1,
+    "id_fournisseur": 5
+  }
+}
+```
+
+### **DELETE** `/produits/:id` : Supprime un produit par son identifiant.
+
+#### Exemple de réponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Produit supprimé"
+}
+```
 
 </div>
 
-### CRUD - Produits
+## 1.4 - Fournisseurs
 
 <div style="text-align: justify;">
 
-- **GET** `/produits` : Récupère tous les produits.
-- **GET** `/produits/:id` : Récupère un produit par son identifiant.
-- **POST** `/produits` : Ajoute un nouveau produit.
-- **PUT** `/produits/:id` : Met à jour un produit par son identifiant.
-- **DELETE** `/produits/:id` : Supprime un produit par son identifiant.
+### **GET** `/fournisseurs` : Récupère tous les fournisseurs.
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+    "id": 1,
+    "nom": "Fournisseur A",
+    "numero_adresse": 12,
+    "rue_adresse": "rue des Modeles",
+    "code_postal": "75001",
+    "ville": "Paris",
+    "telephone": "0123456789",
+    "email": "contact@fournisseurA.com"
+},
+{
+    "id": 2,
+    "nom": "Fournisseur B",
+    "numero_adresse": 45,
+    "rue_adresse": "avenue des Maquettes",
+    "code_postal": "69002",
+    "ville": "Lyon",
+    "telephone": "0987654321",
+    "email": "contact@fournisseurB.com"
+},
+{
+    "id": 3,
+    "nom": "Fournisseur C",
+    "numero_adresse": 78,
+    "rue_adresse": "rue des Kits",
+    "code_postal": "33000",
+    "ville": "Bordeaux",
+    "telephone": "0147258369",
+    "email": "contact@fournisseurC.com"
+},
+...
+```
+
+### **GET** `/fournisseurs/:id` : Récupère un fournisseur par son identifiant.
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "id": 1,
+  "nom": "Fournisseur A",
+  "numero_adresse": 12,
+  "rue_adresse": "rue des Modeles",
+  "code_postal": "75001",
+  "ville": "Paris",
+  "telephone": "0123456789",
+  "email": "contact@fournisseurA.com"
+}
+```
+
+### **POST** `/fournisseurs` : Ajoute un nouveau fournisseur.
+
+#### Exemple de requête POST
+
+```json
+// corps de la requête (json)
+{
+  "nom": "fournisseur",
+  "numero_adresse": 10,
+  "rue_adresse": "rue des fournisseurs",
+  "code_postal": 1212,
+  "ville": "fournisseur",
+  "telephone": "0101010101",
+  "email": "fournisseur@gmail.com"
+}
+```
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Fournisseur ajouté",
+  "result": {
+    "id": 6,
+    "nom": "fournisseur",
+    "numero_adresse": 10,
+    "rue_adresse": "rue des fournisseurs",
+    "code_postal": "1212",
+    "ville": "fournisseur",
+    "telephone": "0101010101",
+    "email": "fournisseur@gmail.com"
+  }
+}
+```
+
+### **PUT** `/fournisseurs/:id` : Met à jour un fournisseur par son identifiant.
+
+#### Exemple de requête POST
+
+```json
+// corps de la requête (json)
+{
+  "nom": "NEW_fournisseur",
+  "numero_adresse": 10,
+  "rue_adresse": "rue des NEW_fournisseurs",
+  "code_postal": 1212,
+  "ville": "NEW_fournisseur",
+  "telephone": "0202020202",
+  "email": "NEW_fournisseur@gmail.com"
+}
+```
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Fournisseur mis à jour",
+  "result": {
+    "id": 6,
+    "nom": "NEW_fournisseur",
+    "numero_adresse": 10,
+    "rue_adresse": "rue des NEW_fournisseurs",
+    "code_postal": "1212",
+    "ville": "NEW_fournisseur",
+    "telephone": "0202020202",
+    "email": "NEW_fournisseur@gmail.com"
+  }
+}
+```
+
+### **DELETE** `/fournisseurs/:id` : Supprime un fournisseur par son identifiant.
+
+#### Exemple de réponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Fournisseur supprimé"
+}
+```
 
 </div>
 
-### CRUD - Fournisseurs
+## 1.5 - Clients
 
 <div style="text-align: justify;">
 
-- **GET** `/fournisseurs` : Récupère tous les fournisseurs.
-- **GET** `/fournisseurs/:id` : Récupère un fournisseur par son identifiant.
-- **POST** `/fournisseurs` : Ajoute un nouveau fournisseur.
-- **PUT** `/fournisseurs/:id` : Met à jour un fournisseur par son identifiant.
-- **DELETE** `/fournisseurs/:id` : Supprime un fournisseur par son identifiant.
+### **GET** `/clients` : Récupère tous les clients.
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+    "id": 1,
+    "nom": "Durand",
+    "prenom": "Michel",
+    "numero_adresse": 12,
+    "rue_adresse": "rue de la Maquette",
+    "code_postal": "75010",
+    "ville": "Paris",
+    "telephone": "0612345678",
+    "email": "michel.durand@email.com"
+},
+{
+    "id": 2,
+    "nom": "Lemoine",
+    "prenom": "Julie",
+    "numero_adresse": 25,
+    "rue_adresse": "avenue des Maquettes",
+    "code_postal": "69008",
+    "ville": "Lyon",
+    "telephone": "0623456789",
+    "email": "julie.lemoine@email.com"
+},
+{
+    "id": 3,
+    "nom": "Martinez",
+    "prenom": "Carlos",
+    "numero_adresse": 33,
+    "rue_adresse": "place des Maquettes",
+    "code_postal": "33000",
+    "ville": "Bordeaux",
+    "telephone": "0634567890",
+    "email": "carlos.martinez@email.com"
+},
+...
+```
+
+### **GET** `/clients/:id` : Récupère un client par son identifiant.
+
+```json
+// réponse (json)
+{
+  "id": 1,
+  "nom": "Durand",
+  "prenom": "Michel",
+  "numero_adresse": 12,
+  "rue_adresse": "rue de la Maquette",
+  "code_postal": "75010",
+  "ville": "Paris",
+  "telephone": "0612345678",
+  "email": "michel.durand@email.com"
+}
+```
+
+### **POST** `/clients` : Ajoute un nouveau client.
+
+#### Exemple de requête POST
+
+```json
+// corps de la requête (json)
+{
+  "nom": "nom_client",
+  "prenom": "prenom_client",
+  "numero_adresse": 10,
+  "rue_adresse": "rue des clients",
+  "code_postal": 1212,
+  "ville": "client ville",
+  "telephone": "01010101",
+  "email": "client@gmail.com"
+}
+```
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Client ajouté",
+  "result": {
+    "id": 7,
+    "nom": "nom_client",
+    "prenom": "prenom_client",
+    "numero_adresse": 10,
+    "rue_adresse": "rue des clients",
+    "code_postal": "1212",
+    "ville": "client ville",
+    "telephone": "01010101",
+    "email": "client@gmail.com"
+  }
+}
+```
+
+### **PUT** `/clients/:id` : Met à jour un client par son identifiant.
+
+#### Exemple de requête POST
+
+```json
+// corps de la requête (json)
+{
+  "nom": "NEW_nom_client",
+  "prenom": "NEW_prenom_client",
+  "numero_adresse": 10,
+  "rue_adresse": "rue des NEW_clients",
+  "code_postal": 1212,
+  "ville": "NEW_client ville",
+  "telephone": "0202020202",
+  "email": "NEW_client@gmail.com"
+}
+```
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Client mis à jour",
+  "result": {
+    "id": 7,
+    "nom": "NEW_nom_client",
+    "prenom": "NEW_prenom_client",
+    "numero_adresse": 10,
+    "rue_adresse": "rue des NEW_clients",
+    "code_postal": "1212",
+    "ville": "NEW_client ville",
+    "telephone": "0202020202",
+    "email": "NEW_client@gmail.com"
+  }
+}
+```
+
+### **DELETE** `/clients/:id` : Supprime un client par son identifiant.
+
+#### Exemple de réponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Client supprimé"
+}
+```
 
 </div>
 
-### CRUD - Clients
+## 1.6 - Commandes
 
 <div style="text-align: justify;">
 
-- **GET** `/clients` : Récupère tous les clients.
-- **GET** `/clients/:id` : Récupère un client par son identifiant.
-- **POST** `/clients` : Ajoute un nouveau client.
-- **PUT** `/clients/:id` : Met à jour un client par son identifiant.
-- **DELETE** `/clients/:id` : Supprime un client par son identifiant.
+### **GET** `/commandes` : Récupère toutes les commandes, incluant ses lignes de commande.
 
-</div>
+#### Exemple de reponse JSON
 
-### CRUD - Commandes
+```json
+// réponse (json)
+{
+  "id": 1,
+  "date_commande": "2025-01-10",
+  "id_client": 1,
+  "prix_total": "82.00",
+  "lignes_commandes": [
+    {
+      "id": 1,
+      "id_produit": 1,
+      "quantite": 3,
+      "prix_unitaire": "15.00",
+      "total_ligne": "45.00"
+    },
+    {
+      "id": 2,
+      "id_produit": 2,
+      "quantite": 2,
+      "prix_unitaire": "18.50",
+      "total_ligne": "37.00"
+    }
+  ]
+},
+{
+  "id": 2,
+  "date_commande": "2025-01-12",
+  "id_client": 2,
+  "prix_total": "42.00",
+  "lignes_commandes": [
+    {
+      "id": 3,
+      "id_produit": 3,
+      "quantite": 1,
+      "prix_unitaire": "17.00",
+      "total_ligne": "17.00"
+    },
+    {
+      "id": 4,
+      "id_produit": 4,
+      "quantite": 1,
+      "prix_unitaire": "25.00",
+      "total_ligne": "25.00"
+    }
+  ]
+},
+{
+  "id": 3,
+  "date_commande": "2025-01-15",
+  "id_client": 3,
+  "prix_total": "98.00",
+  "lignes_commandes": [
+    {
+      "id": 5,
+      "id_produit": 5,
+      "quantite": 3,
+      "prix_unitaire": "20.00",
+      "total_ligne": "60.00"
+    },
+    {
+      "id": 6,
+      "id_produit": 6,
+      "quantite": 2,
+      "prix_unitaire": "19.00",
+      "total_ligne": "38.00"
+    }
+  ]
+},
+...
+```
 
-<div style="text-align: justify;">
+### **GET** `/commandes/:id` : Récupère une commande par son identifiant, incluant ses lignes de commande.
 
-- **GET** `/commandes` : Récupère toutes les commandes, incluant ses lignes de commande.
-- **GET** `/commandes/:id` : Récupère une commande par son identifiant, incluant ses lignes de commande.
-- **POST** `/commandes` : Ajoute une nouvelle commande.
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "id": 1,
+  "date_commande": "2025-01-10",
+  "id_client": 1,
+  "prix_total": "82.00",
+  "lignes_commandes": [
+    {
+      "id": 1,
+      "id_produit": 1,
+      "quantite": 3,
+      "prix_unitaire": "15.00",
+      "total_ligne": "45.00"
+    },
+    {
+      "id": 2,
+      "id_produit": 2,
+      "quantite": 2,
+      "prix_unitaire": "18.50",
+      "total_ligne": "37.00"
+    }
+  ]
+}
+```
+
+### **POST** `/commandes` : Ajoute une nouvelle commande.
+
+#### Exemple de requête POST pour la **VERSION 1**
+
+```json
+// corps de la requête (json)
+{
+  "date_commande": "2025-01-02",
+  "prix_total": 85.5,
+  "id_client": 1,
+  "lignes_commandes": [
+    {
+      "id_produit": 1,
+      "quantite": 2,
+      "prix_unitaire": 15.0,
+      "total_ligne": 30.0
+    },
+    {
+      "id_produit": 2,
+      "quantite": 3,
+      "prix_unitaire": 18.5,
+      "total_ligne": 55.5
+    }
+  ]
+}
+```
+
+#### Exemple de requête POST pour la **VERSION 2**
+
+```json
+// corps de la requête (json)
+{
+  "date_commande": "2025-01-02",
+  "id_client": 1,
+  "lignes_commandes": [
+    {
+      "id_produit": 1,
+      "quantite": 2
+    },
+    {
+      "id_produit": 2,
+      "quantite": 3
+    }
+  ]
+}
+```
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Commande ajoutée",
+  "commande": [
+    {
+      "id": 13,
+      "date_commande": "2025-01-02",
+      "id_client": 1,
+      "prix_total": "85.50",
+      "lignes_commandes": [
+        {
+          "id": 25,
+          "id_produit": 1,
+          "quantite": 2,
+          "prix_unitaire": "15.00",
+          "total_ligne": "30.00"
+        },
+        {
+          "id": 26,
+          "id_produit": 2,
+          "quantite": 3,
+          "prix_unitaire": "18.50",
+          "total_ligne": "55.50"
+        }
+      ]
+    }
+  ]
+}
+```
+
 - **PUT** `/commandes/:id` : Met à jour une commande et ses lignes.
+
+#### Exemple de requête POST pour la **VERSION 1**
+
+```json
+// corps de la requête (json)
+{
+  "date_commande": "2025-01-31",
+  "prix_total": 77.0,
+  "id_client": 1,
+  "lignes_commandes": [
+    {
+      "id_produit": 5,
+      "quantite": 3,
+      "prix_unitaire": 20.0,
+      "total_ligne": 60.0
+    },
+    {
+      "id_produit": 3,
+      "quantite": 1,
+      "prix_unitaire": 17.0,
+      "total_ligne": 17.0
+    }
+  ]
+}
+```
+
+#### Exemple de requête POST pour la **VERSION 2**
+
+```json
+// corps de la requête (json)
+{
+  "date_commande": "2025-01-31",
+  "id_client": 1,
+  "lignes_commandes": [
+    {
+      "id_produit": 5,
+      "quantite": 3
+    },
+    {
+      "id_produit": 3,
+      "quantite": 1
+    }
+  ]
+}
+```
+
+#### Exemple de reponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Commande mise à jour",
+  "commande": [
+    {
+      "id": 13,
+      "date_commande": "2025-01-02",
+      "id_client": 1,
+      "prix_total": "77.00",
+      "lignes_commandes": [
+        {
+          "id": 29,
+          "id_produit": 5,
+          "quantite": 3,
+          "prix_unitaire": "20.00",
+          "total_ligne": "60.00"
+        },
+        {
+          "id": 30,
+          "id_produit": 3,
+          "quantite": 1,
+          "prix_unitaire": "17.00",
+          "total_ligne": "17.00"
+        }
+      ]
+    }
+  ]
+}
+```
+
 - **DELETE** `/commandes/:id` : Supprime une commande et ses lignes.
 
+#### Exemple de réponse JSON
+
+```json
+// réponse (json)
+{
+  "message": "Commande supprimée ainsi que les lignes de commande associées"
+}
+```
+
 </div>
+
+## 2. Nouvelles routes de l'API (Version 2)
+
+### 2.1 Lignes de Commandes
+
+- **GET** `/lignes` : Récupère tous les lignes des commandes.
+- **GET** `/lignes/:id` : Récupère une ligne de commande par son identifiant.
+- **POST** `/lignes` : Ajoute une ligne de commande.
+- **PUT** `/lignes/:id` : Met à jour une ligne de commande par son identifiant.
+- **DELETE** `/lignes/:id` : Supprime une ligne de commande par son identifiant.
+
+#### Exemple de requête API (JSON)
+
+### 2.2 Lister les commandes par année
+
+- **GET** `/commandes?start=2023-01-01&end=2023-12-31` : Récupère toutes les commandes filtrer par date.
+
+Ces filtres sont facultatif et il est également possible de filter à partir (`start`) d'une date précise ou jusqu'à (`end`) une certaine date.
+En cas d'absence de ces filtres, l'appel retournera simplement toutes les commandes présente dans la base.
+
+### 2.3 Rechercher les commandes d’un client
+
+- **GET** `/clients/:id/commandes` : Récupère toutes les commandes pour un client identifié.
+
+### 2.4 Lister les commandes qui contiennent un article précis
+
+- **GET** `/produits/:id/commandes` : Récupère toutes les commandes contenant un produit spécifique.
+
+### 2.5 Recherche multi-critères
+
+- **GET** `/commandes?start=2023-01-01&end=2023-12-31&id_produit=1&id_client=2&prix_min=25&prix_max=45`
+
+L'API GET de la route commande permet d'appliquer des filtres afin d'afiner la recherche de commande:
+
+- Filtrage par **date** : `start=2023-01-01&end=2023-12-31`
+- Filtrage par **produit** : `id_produit=1`
+- Filtrage par **client** : `id_client=2`
+- Filtrage par **prix total de commande minimun** : `prix_min=25`
+- Filtrage par **prix total de commande maximum** : `prix_max=45`
+
+Chacun de ces filtre peuvent être appliqué individuellement.
+
+### 2.6 Statistiques
+
+#### Top produits
+
+- **GET** `/top-produits` : Récupère les 3 produits les plus vendus
+
+#### Top clients
+
+- **GET** `/top-clients` : Récupère les 3 clients ayant réaliser le plus de commande.
+
+#### Top fournisseurs
+
+- **GET** `/top-fournisseurs` : Récupère les 3 fournisseurs les plus sollicités
+
+#### Total des ventes
+
+- **GET** `/total-ventes` : Récupère le total des ventes
+
+```json
+{
+  "id_produit": 1,
+  "id_commande": 1,
+  "quantite": 2
+}
+```
 
 ## 2. Structure de la Base de Données
 
@@ -151,14 +978,6 @@ La table categories contient les catégories des produits. Chaque catégorie a u
 | `nom` | VARCHAR  | Nom de la catégorie                |
 
 </div>
-
-#### Exemple de requête API (JSON)
-
-```json
-{
-  "nom": "nom_categorie"
-}
-```
 
 ### 2.2 Table `produits`
 
@@ -681,3 +1500,150 @@ Les modifications proposées pour la version 2 visent à améliorer la sécurit�
 De plus, la mise à jour automatique des stocks et la gestion des rôles renforceront la logique métier et la sécurité du système.
 
 </div>
+
+# Description et amélioration de la version 2
+
+## Introduction
+
+La version 2 de notre application introduit des améliorations significatives en termes de structure, de sécurité, de performance et de fonctionnalités.
+
+## 1. Structure des dossiers
+
+La réorganisation du projet vise à améliorer la lisibilité et la maintenabilité du code :
+
+```
+sdv-bdd
+├── src
+│   ├── controllers
+│   │   ├── categoriesController.js
+│   │   ├── clientsController.js
+│   │   ├── commandsController.js
+│   │   ├── linesController.js
+│   │   ├── productsController.js
+│   │   ├── statisticsController.js
+│   │   └── suppliersController.js
+│   ├── routes
+│   │   ├── categoriesRoutes.js
+│   │   ├── clientsRoutes.js
+│   │   ├── commandsRoutes.js
+│   │   ├── linesRoutes.js
+│   │   ├── productsRoutes.js
+│   │   ├── statisticsRoutes.js
+│   │   └── suppliersRoutes.js
+│   ├── db
+│   │   ├── dbConnection.js
+│   │   ├── dbInit.js
+│   │   ├── db.sql
+│   │   └── data.sql
+│   ├── utils
+│   │   └── getCommands.js
+│   ├── app.js
+│   └── index.js
+├── package.json
+└── README.md
+```
+
+**Améliorations** :
+
+- **Séparation des responsabilités** : Les contrôleurs, routes, utilitaires et configurations de la base de données sont désormais clairement distincts.
+- **Extensibilité** : Cette structure facilite l'ajout de nouvelles fonctionnalités et modules à l'avenir.
+
+## 2. Améliorations de la base de données
+
+Des modifications ont été apportées pour renforcer l'intégrité et l'efficacité des données.
+
+### 2.1 Performance et indexation
+
+5.1. Optimisation des requêtes
+Dans la version 1 de la base de donnée, les index ne sont pas explicitement définis dans le fichier db.sql,
+mais il est essentiel de les ajouter sur les colonnes fréquemment utilisées dans
+les requêtes (par exemple, `client_id` dans la table `Commandes`, `commande_id` et `produit_id` dans la table `Lignes_Commandes`).
+Cela permettrait d'améliorer les performances des requêtes complexes.
+
+L’ajout d'index sur les clés étrangères peut améliorer la performance des jointures,
+en particulier pour des tables avec de grandes quantités de données.
+
+```SQL
+-- Table des produits
+CREATE TABLE produits (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    -- Colonnes de la table produit
+    id_categorie INT,
+    id_fournisseur INT,
+    FOREIGN KEY (id_categorie) REFERENCES Categories(id) ON DELETE SET NULL,
+    FOREIGN KEY (id_fournisseur) REFERENCES Fournisseurs(id) ON DELETE SET NULL,
+    INDEX (id_categorie), /* Index sur la clé étrangère id_categorie */
+    INDEX (id_fournisseur) /* Index sur la clé étrangère id_fournisseur */
+);
+```
+
+### 2.2 Validation des Données
+
+Des contrôles ont été ajoutés sur certaines colonnes cruciales pour conserver la cohérence la base de données.
+Par exemple, sur la table `lignes_commande` les `quantite` et `prix_unitaire` ne doivent pas être négative. Le `total_ligne` est calculé automatiquement en fontion de ces deux valeurs.
+
+```SQL
+-- Table des lignes de commande
+CREATE TABLE lignes_commandes(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    -- Colonnes de la table produit
+    quantite INT NOT NULL CHECK (quantite > 0), /* La quantité ne peut pas être négative */
+    prix_unitaire DECIMAL(10, 2) NOT NULL CHECK (prix_unitaire > 0), /* Le prix unitaire ne peut pas être négatif */
+    total_ligne DECIMAL(10, 2) GENERATED ALWAYS AS (quantite * prix_unitaire) STORED, /* Total de la ligne calculé automatiquement */
+    -- Colonnes de la table produit
+);
+```
+
+### 2.3 Calculs Automatiques
+
+Pour améliorer l'efficacité et réduire les erreurs humaines la version 2 met en place différents calcul automatique:
+
+- **Calcul automatique du prix total de la commande** : Le serveur calcule désormais le prix total d'une commande en fonction des lignes de commande fournies.
+- **Mise à jour automatique des stocks** : Décrémentation automatique des quantités en stock lors de la validation d'une commande ou de l'insertion d'une ligne de commande.
+
+  Pour ces différentes mise à jour automatique des triggers ont été mis en place.
+
+  #### a - Trigger pour mettre à jour le prix total d'une commande.
+
+  Après l'insertion d'une commande, le calcul du prix total de la commande est calculé automatiquement en fonction de ces lignes commandes. Ce trigger s'applique également lors de l'ajout d'une simple ligne de commande:
+
+  ```SQL
+  CREATE TRIGGER update_prix_total_commande
+  AFTER INSERT ON lignes_commandes
+  FOR EACH ROW
+  BEGIN
+    UPDATE commandes
+    SET prix_total = (SELECT SUM(total_ligne) FROM lignes_commandes WHERE id_commande = NEW.id_commande)
+    WHERE id = NEW.id_commande;
+  END;
+  ```
+
+  #### b - Trigger pour mettre à jour la quantité en stock d'un produit après une commande.
+
+  A chaque nouvelle commande, la `quantite_stock` de chaque produit présent dans la commande est mise à jour automatiquement:
+
+  ```SQL
+  CREATE TRIGGER update_quantite_stock_produit
+  AFTER INSERT ON lignes_commandes
+  FOR EACH ROW
+  BEGIN
+    UPDATE produits
+    SET quantite_stock = quantite_stock - NEW.quantite
+    WHERE id = NEW.id_produit;
+  END;
+  ```
+
+  #### c - Trigger pour restaurer la quantité en stock d'un produit après une suppression de ligne de commande.
+
+  De la même manière, lors de la suppression d'une commande ou d'une ligne de commande individuelle, les `quantite_stock` mise à jour automatiquement:
+
+  ```SQL
+  CREATE TRIGGER restore_quantite_stock_produit
+  AFTER DELETE ON lignes_commandes
+  FOR EACH ROW
+  BEGIN
+    UPDATE produits
+    SET quantite_stock = quantite_stock + OLD.quantite
+    WHERE id = OLD.id_produit;
+  END;
+  ```
