@@ -8,28 +8,94 @@ Le projet inclut une API qui permet d’effectuer des opérations CRUD (Create, 
 
 ## Installation
 
-1. Clonez le repository sur votre machine locale :
+### 1. Forkez le dépôt
+
+Pour commencer, forkez ce dépôt sur GitHub afin de pouvoir travailler sur votre propre copie.
+
+### 2. Clonez le dépôt :
+
+Clonez ensuite le dépôt sur votre machine locale :
 
 ```
 git clone https://github.com/odakris/svd-database.git
 cd svd-bdd
 ```
 
-2. Installez les dépendances du projet :
+### 3. Créez le fichier `.env`
+
+À la racine de votre projet, créez un fichier `.env` pour y placer vos variables d'environnement. Vous pouvez vous baser sur le modèle suivant.
+
+#### Exemple de fichier `.env`
+
+```SQL
+# Database configuration
+DB_HOST=localhost
+DB_NAME=avion_papier
+
+# ROOT
+DB_USER=root
+DB_PASSWORD=root
+
+# ADMIN
+ADMIN_USER=admin
+ADMIN_PASSWORD=adminpassword
+
+# USER
+READONLY_USER=user
+READONLY_PASSWORD=userpassword
+
+# ORDER
+ORDER_USER=order
+ORDER_PASSWORD=orderpassword
+
+# USER
+MANAGER_USER=manager
+MANAGER_PASSWORD=managerpassword
+```
+
+#### Description des variables :
+
+- **DB_HOST** : L'adresse du serveur de base de données
+- **DB_NAME** : Le nom de la base de données à utiliser (par défaut, `avion_papier` dans cet exemple).
+- **DB_USER** : L'utilisateur MySQL ayant les privilèges nécessaires (habituellement `root` pour les environnements locaux).
+- **DB_PASSWORD** : Le mot de passe de l'utilisateur MySQL.
+
+#### Utilisateurs spécifiques :
+
+- **ADMIN_USER** et **ADMIN_PASSWORD** : Identifiants pour l'utilisateur ayant des privilèges administratifs sur la base de données.
+- **READONLY_USER** et **READONLY_PASSWORD** : Identifiants pour un utilisateur en lecture seule, qui peut uniquement effectuer des sélections (SELECT).
+- **ORDER_USER** et **ORDER_PASSWORD** : Identifiants pour l'utilisateur qui peut gérer les commandes dans la base de données.
+- **MANAGER_USER** et **MANAGER_PASSWORD** : Identifiants pour un utilisateur ayant des privilèges de gestion dans la base de données.
+
+### 4. Installer les dépendances :
+
+Après avoir configuré votre fichier `.env`, installez les dépendances du projet en utilisant npm ou yarn.
 
 ```
 npm install
 ```
 
-3. Démarrez le serveur de l'API :
+ou
+
+```
+yarn install
+```
+
+### 5. Lancer l'application
 
 ```
 npm start
 ```
 
-L'API sera accessible à l'adresse suivante : http://localhost:3000.
-\
+Cela démarrera le serveur sur le port 3000 par défaut. Vous pouvez ensuite accéder à l'application via votre navigateur à l'adresse http://localhost:3000.
+
 Vous pouvez maintenant utiliser des outils comme [Postman](https://www.postman.com/) pour interagir avec l'API.
+
+### 6. Initialiser la base de données
+
+Pour initialiser la base de données, envoyez une requête POST à l'endpoint `/init` de l'application avec l'en-tête (headers de la requête) **`role`** défini sur **`root`**. Vous pouvez utiliser un outil comme Postman
+
+### 7. Branches
 
 Il existe deux branches pour ce projet. La première version est accessible sur la branche **VERSION-1**
 
@@ -47,7 +113,9 @@ git checkout master
 
 ### 1. Initialisation de la Base de Données
 
-#### **POST** `/init` : Initialise la base de données avec les tables et les données de test.
+**POST** `/init` : Initialise la base de données avec les tables et les données de test.
+
+Pour la deuxième version de l'application, la requête POST vers le endpoint `/init` doit être réalisé avec un header `role` défini avec la valeur `root`
 
 ### 2. Catégories
 
@@ -1514,16 +1582,18 @@ const [row] = await connection.execute(
 
 ## 4. Validation des données
 
-Il est essentiel de **vérifier les données envoyées par l'utilisateur** avant de les insérer dans la base de données, comme par exemple:
+L'intégrité des données est un élément clé pour garantir la fiabilité et la sécurité de l'application. Il est essentiel de **vérifier et valider toutes les données envoyées par l'utilisateur** avant de les insérer dans la base de données.
 
-- Vérification de la cohérence des valeurs des champs (**quantite_stock >= 0**, **prix_unitaire > 0**, etc.).
+- Empêcher l'insertion de données incohérentes ou invalides (ex. `quantite_stock` négatif, `prix_unitaire` à zéro, etc.).
+- Assurer la cohérence des relations en base de données (ex. s'assurer qu'un `id_client` existe avant d'enregistrer une commande).
+- Protéger contre des attaques comme l'injection SQL ou des erreurs applicatives.
 - Gestion des valeurs par défaut et des champs obligatoires.
 
-</div>
+### Validation des valeurs des champs
+
+Certains champs doivent respecter des contraintes logiques, comme une quantité ou un prix qui ne peuvent pas être négatifs.
 
 Exemple de validation pour les produits:
-
-</div>
 
 ```javascript
 // Vérifier si la quantité et le prix unitaire sont supérieurs à 0
@@ -1538,7 +1608,9 @@ if (quantite_stock <= 0) {
 }
 ```
 
-De la même manière, lors de requêtes POST et PUT il est important de vérifier la présence des champs obligatoires.
+### Vérification des champs obligatoires
+
+Lors des requêtes POST et PUT, il est important de s'assurer que tous les champs requis sont bien présents dans la requête.
 
 ```javascript
 // Vérifier si les champs obligatoires sont renseignés pour la commande
@@ -1550,7 +1622,9 @@ requiredFields.forEach((field) => {
 });
 ```
 
-Toujours dans l'optique d'éviter les erreurs humaines, l'existence des clients, produits ou fournisseurs doit être vérifiée avant l'insertion dans la base de données:
+### Vérification des entités en base de données
+
+Avant d'insérer une donnée, il est primordial de vérifier que les références existent déjà dans la base de données. Par exemple, on ne peut pas passer une commande pour un client qui n'existe pas.
 
 ```javascript
 // Vérifier si le client existe
@@ -1583,10 +1657,44 @@ if (produit[0].quantite_stock < ligne.quantite) {
 
 <div style="text-align: justify;">
 
-<u>**Problèmes**</u>: L'API ne dispose d'aucun mécanisme de gestion des rôles. Cela pose un problème de sécurité, car toute personne ayant accès à l'API peut effectuer des actions sensibles (ajouter, modifier ou supprimer des données).
+<u>**Problèmes**</u>: L'API ne dispose d'aucun mécanisme de gestion des rôles, ce qui pose un sérieux problème de sécurité. Toute personne ayant accès à l'API pourrait potentiellement exécuter des actions sensibles (ajout, modification ou suppression de données), sans restriction.
 
 </div>
 
 <div style="text-align: justify;">
 
-<u>**Solutions**</u>: Il est conseillé de gérer des rôles (admin, utilisateur, etc.). L'admin pourrait avoir accès à toutes les fonctionnalités, tandis que l'utilisateur serait limité à consulter les produits, passer des commandes, etc.
+<u>**Solutions**</u>: Il est recommandé d'implémenter un système de gestion des rôles afin de restreindre l'accès aux fonctionnalités en fonction du profil utilisateur. Voici la configuration des rôles suggérée :
+
+Quatre profils ont été défini (sans compter `root`):
+
+- **ADMIN** : Accès total à toutes les fonctionnalités et tables de la base de données.
+- **READONLY** : Accès en lecture seule sur l'ensemble des tables.
+- **ORDER** : Accès limité à la gestion des commandes, avec des droits de lecture et écriture uniquement sur les tables `commandes` et `lignes_commandes`.
+- **MANAGER** : Accès en lecture et écriture sur l'ensemble des tables, sauf pour la gestion des utilisateurs et des privilèges.
+
+Le script ci-dessous permet de créer les utilisateurs et d'attribuer les privilèges correspondants :
+
+```SQL
+CREATE USER IF NOT EXISTS '${ADMIN_USER}'@'localhost' IDENTIFIED BY '${ADMIN_PASSWORD}';
+GRANT ALL PRIVILEGES ON avion_papier.* TO '${ADMIN_USER}'@'localhost';
+
+CREATE USER IF NOT EXISTS '${READONLY_USER}'@'localhost' IDENTIFIED BY '${READONLY_PASSWORD}';
+GRANT SELECT ON avion_papier.* TO '${READONLY_USER}'@'localhost';
+
+CREATE USER IF NOT EXISTS '${ORDER_USER}'@'localhost' IDENTIFIED BY '${ORDER_PASSWORD}';
+GRANT SELECT, INSERT, UPDATE, DELETE ON avion_papier.commandes TO '${ORDER_USER}'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON avion_papier.lignes_commandes TO '${ORDER_USER}'@'localhost';
+
+CREATE USER IF NOT EXISTS '${MANAGER_USER}'@'localhost' IDENTIFIED BY '${MANAGER_PASSWORD}';
+GRANT SELECT, INSERT, UPDATE, DELETE ON avion_papier.* TO '${MANAGER_USER}'@'localhost';
+
+FLUSH PRIVILEGES;
+```
+
+Pour utiliser un rôle spécifique lors de l'exécution d'une requête API, il suffit d'inclure un en-tête (header) nommé role dans la requête, avec comme valeur l'un des profils définis (`admin`, `readonly`, `order`, `manager`).
+
+#### Exemple d'en-tête HTTP :
+
+```http
+role: order
+```
