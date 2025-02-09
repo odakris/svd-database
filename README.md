@@ -1454,6 +1454,7 @@ sdv-bdd
 │   │   ├── dbConnection.js
 │   │   ├── dbInit.js
 │   │   ├── db.sql
+│   │   ├── users.sql
 │   │   └── data.sql
 │   ├── utils
 │   │   └── getCommands.js
@@ -1698,3 +1699,59 @@ Pour utiliser un rôle spécifique lors de l'exécution d'une requête API, il s
 ```http
 role: order
 ```
+
+## Note & remarques
+
+J’ai rencontré quelques difficultés dans l’attribution des droits pour les utilisateurs **ORDER** et **MANAGER**. Bien que des privilèges spécifiques aient été accordés à ces deux profils, ils ne semblent pas être appliqués correctement, pour des raisons encore inconnues.
+
+### Problème avec le profil **MANAGER**
+
+Le profil **MANAGER** est censé avoir un accès complet en lecture et écriture sur toutes les tables de la base de données `avion_papier`. Cependant, en pratique, il ne semble avoir accès qu’à certaines tables, notamment `commandes`, mais rencontre des erreurs sur d'autres tables, y compris celles en relation avec `commandes` comme `lignes_commandes`.
+
+#### Exemples d’erreurs rencontrées :
+
+```bash
+Erreur lors de la récupération des catégories:  Error: SELECT command denied to user 'manager'@'localhost' for table 'categories'
+Erreur lors de la récupération des produits:  Error: SELECT command denied to user 'manager'@'localhost' for table 'produits'
+Erreur lors de la récupération des fournisseurs:  Error: SELECT command denied to user 'manager'@'localhost' for table 'fournisseurs'
+Erreur lors de l'exécution de la requête :  Error: SELECT command denied to user 'manager'@'localhost' for table 'lignes_commandes'
+```
+
+#### Solution
+
+Executer directement dans SQL WorkBench:
+
+```SQL
+GRANT SELECT, INSERT, UPDATE, DELETE ON avion_papier.commandes TO `order`@`localhost`;
+GRANT SELECT, INSERT, UPDATE, DELETE ON avion_papier.lignes_commandes TO `order`@`localhost`;
+FLUSH PRIVILEGES;
+```
+
+### Problème avec le profil **ORDER**
+
+Le profil **ORDER** devrait avoir des accès en lecture et écriture **uniquement** sur les tables `commandes` et `lignes_commandes`. Toutefois, l’utilisateur **ORDER** semble ne pas avoir du tout accès à la base de données.
+
+#### Exemples d’erreurs rencontrées :
+
+```bash
+Error: Access denied for user 'order'@'localhost' to database 'avion_papier'
+```
+
+#### Solution
+
+Executer directement dans SQL WorkBench:
+
+```SQL
+GRANT SELECT, INSERT, UPDATE, DELETE ON avion_papier.* TO `manager`@`localhost`;
+FLUSH PRIVILEGES;
+```
+
+### Contournement temporaire pour les tests
+
+Si le problème persiste malgré ces ajustements, merci d’utiliser les profils **ROOT**, **ADMIN** ou **READONLY** pour effectuer les tests de l’application en local.
+
+- **ROOT** → Accès total à la base de données
+- **ADMIN** → Accès complet sur avion_papier
+- **READONLY** → Accès en lecture seule sur toutes les tables
+
+Cela permettra d'éviter les blocages liés aux permissions ou, si nécessaire, de revenir à l'avant-dernier commit intitulé **`"Last commit on README.md"`**.
